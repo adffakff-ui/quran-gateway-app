@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">بوابة الجمعية</string>
+    <string name="welcome_title">نظام إدارة الجمعيات القرآنية</string>
+    <string name="login_title">تسجيل دخول المشرفين والإدارة</string>
+    <string name="email_hint">البريد الإلكتروني</string>
+    <string name="password_hint">كلمة المرور</string>
+    <string name="login_button">تسجيل الدخول</string>
+</resources>

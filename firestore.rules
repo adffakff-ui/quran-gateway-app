@@ -1,0 +1,28 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isValidTenant() {
+      let data = request.resource.data;
+      return data.id is string
+        && data.name is string
+        && data.name.size() > 0
+        && data.city is string
+        && data.code is string;
+    }
+
+    match /tenants/{tenantId} {
+      // Anyone using the application can read registered societies
+      allow read: if true;
+
+      // Only authenticated users (Owner/Admins) can create, update, or delete tenants
+      allow create: if isAuthenticated() && isValidTenant() && request.resource.data.id == tenantId;
+      allow update: if isAuthenticated() && isValidTenant();
+      allow delete: if isAuthenticated();
+    }
+  }
+}

@@ -1,11 +1,60 @@
-<div align="center">
+# 📖 بوابة الجمعية | المنظومة الرقمية لإدارة حلقات تحفيظ القرآن الكريم
 
-<img width="1200" height="475" alt="GHBanner" src="https://github.com/user-attachments/assets/0aa67016-6eaf-458a-adb2-6e31a0763ed6" />
+تطبيق أندرويد متكامل مبني بأحدث تقنيات **Jetpack Compose** و **Material Design 3** مخصص لإدارة جمعيات ومراكز تحفيظ القرآن الكريم بنظام متعدد المستأجرين (Multi-tenant).
 
-  <h1>Built with AI Studio</h2>
+---
 
-  <p>The fastest path from prompt to production with Gemini.</p>
+## 📱 حزمة التطبيق (APK Package)
+- **ملف الحزمة:** `app-debug.apk` (متوفر في المجلد الرئيسي وفي `app/build/outputs/apk/debug/app-debug.apk`)
+- **الحجم:** ~27 ميجابايت (26.9 MB)
+- **الإصدار:** v1.0.0 (API 24+ / Android 7.0+)
+- **معرف الحزمة (Application ID):** `com.aistudio.societyportal.mzywqk`
 
-  <a href="https://aistudio.google.com/apps">Start building</a>
+---
 
-</div>
+## ✨ المميزات الرئيسية
+1. **لوحة المشرف العام (Supervisor Dashboard):**
+   - مؤشرات أداء حية (KPIs)، مخططات بيانية لتقدم الحفظ الشهري، وإدارة الحلقات.
+2. **تسجيل المشرفين الجدد (`SupervisorRegistrationScreen.kt`):**
+   - نموذج كامل مدمج بـ `NavigationCompose` مع التحقق الدقيق من الحقول (الاسم، البريد، الجوال، كلمة المرور، والقسم الإشرافي).
+3. **دعم كامل للجمعيات القرآنية اليمنية:**
+   - خيارات بارزة لـ **جمعية هائل سعيد أنعم الخيرية** و **جمعية معاذ العلمية** بتعز بشارة "مؤسسة رائدة".
+   - تغطية شاملة لكافة الجمعيات الخيرية لتعليم القرآن الكريم بجميع محافظات الجمهورية اليمنية الـ 22.
+   - نافذة بحث وفلترة ذكية للجمعيات والمحافظات.
+4. **بوابة ولي الأمر والتسجيلات القرآنية:**
+   - رفع تسجيلات التلاوة والاختبارات المنزلية مع تحديد السورة والآيات.
+   - دعم القراءات العشر والروايات (حفص، ورش، قالون، الدوري...).
+5. **تسجيل الحضور ومسح الـ QR:**
+   - رصد الحضور بنقرة زر أو عبر كاميرا الهاتف لمسح رمز الاستجابة السريعة (CameraX).
+6. **إصدار التقارير والشهادات:**
+   - توليد شهادات إتمام الحفظ والتجويد للطلاب المستوفين للشروط بصيغة PDF وقوالب قابلة للتخصيص.
+
+---
+
+## 🚀 النشر والرفع (GitHub & Vercel)
+
+### 1. الرفع على GitHub (Releases & Actions):
+- **بناء وإنشاء Release تلقائي:** تم تضمين سير عمل `.github/workflows/android-build-release.yml` الذي يقوم ببناء الـ APK تلقائياً ورفعه في صفحة الـ Releases عند إنشاء Tag.
+- **نشر صفحة الويب على GitHub Pages:** عبر سير العمل `.github/workflows/deploy-pages.yml` الذي ينشر ملفات `index.html` وملف `app-debug.apk`.
+- **أمر الرفع اليدوي عبر GitHub CLI:**
+  ```bash
+  gh release create v1.0.0 ./app-debug.apk --title "v1.0.0" --notes "Initial APK release - تطبيق بوابة الجمعية"
+  ```
+
+### 2. النشر على Vercel:
+تم تضمين ملف `vercel.json` لتشغيل بوابة الويب وتنزيل الـ APK:
+```bash
+# تثبيت ونشر فوري على Vercel
+vercel --prod
+```
+
+---
+
+## 🛠️ البناء والتطوير المحلي
+```bash
+# بناء حزمة الـ Debug APK
+gradle :app:assembleDebug
+
+# تشغيل الفحص والترجمة
+gradle :app:compileDebugKotlin
+```
