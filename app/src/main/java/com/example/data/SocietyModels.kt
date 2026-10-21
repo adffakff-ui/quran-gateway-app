@@ -43,7 +43,7 @@ object SocietyRepository {
     var allUsers by mutableStateOf<List<UserProfile>>(emptyList())
     
     var isProductionMode by mutableStateOf(true)
-    var isBiometricLoginEnabled by mutableStateOf(false)
+    var isBiometricLoginEnabled by mutableStateOf(true)
     var systemMaintenanceMode by mutableStateOf(false)
     var globalRegistrationActive by mutableStateOf(true)
 
@@ -88,4 +88,63 @@ object SocietyRepository {
     fun wipeAllDataPreservingOwner() {}
     fun resetAllSocietiesDataClean() {}
     fun isAuthorizedOwner(input: String): Boolean = false
+
+    fun findRegisteredUser(query: String, defaultTenant: Tenant): ResolvedUser {
+        val q = query.trim().lowercase()
+        if (q.isBlank()) {
+            return ResolvedUser(
+                name = defaultSupervisor.name,
+                phone = defaultSupervisor.phone,
+                email = defaultSupervisor.email,
+                role = UserRole.SUPERVISOR,
+                societyName = defaultTenant.shortName
+            )
+        }
+
+        // Search in registered users
+        val userMatch = allUsers.firstOrNull {
+            it.phone.contains(q) || it.email.lowercase().contains(q) || it.name.lowercase().contains(q)
+        }
+        if (userMatch != null) {
+            return ResolvedUser(userMatch.name, userMatch.phone, userMatch.email, userMatch.role, defaultTenant.shortName)
+        }
+
+        // Search in teachers
+        val teacherMatch = allTeachers.firstOrNull {
+            it.phone.contains(q) || it.email.lowercase().contains(q) || it.name.lowercase().contains(q)
+        }
+        if (teacherMatch != null) {
+            return ResolvedUser(teacherMatch.name, teacherMatch.phone, teacherMatch.email, UserRole.TEACHER, defaultTenant.shortName)
+        }
+
+        // Search in students / guardians
+        val studentMatch = allStudents.firstOrNull {
+            it.guardianPhone.contains(q) || it.guardianName.lowercase().contains(q) || it.name.lowercase().contains(q)
+        }
+        if (studentMatch != null) {
+            return ResolvedUser(studentMatch.guardianName, studentMatch.guardianPhone, "", UserRole.GUARDIAN, defaultTenant.shortName)
+        }
+
+        // Check if supervisor
+        if (defaultSupervisor.phone.contains(q) || defaultSupervisor.email.lowercase().contains(q) || q.contains("super") || q.contains("مشرف")) {
+            return ResolvedUser(defaultSupervisor.name, defaultSupervisor.phone, defaultSupervisor.email, UserRole.SUPERVISOR, defaultTenant.shortName)
+        }
+
+        val isEmail = q.contains("@")
+        return ResolvedUser(
+            name = if (isEmail) q.substringBefore("@") else "مستخدم مسجل ($q)",
+            phone = if (!isEmail) q else "",
+            email = if (isEmail) q else "",
+            role = UserRole.SUPERVISOR,
+            societyName = defaultTenant.shortName
+        )
+    }
 }
+
+data class ResolvedUser(
+    val name: String,
+    val phone: String,
+    val email: String,
+    val role: UserRole,
+    val societyName: String = ""
+)

@@ -1854,7 +1854,7 @@ fun OwnerControlPanelScreen(
                                             color = GoldenAmber.copy(alpha = 0.15f)
                                         ) {
                                             Text(
-                                                text = "الرمز السري: ${OtpSecuritySystem.MASTER_PIN}",
+                                                text = "توليد تلقائي مشفر (6 أرقام)",
                                                 fontSize = 10.sp,
                                                 fontWeight = FontWeight.Bold,
                                                 color = Color(0xFF92400E),
@@ -1894,7 +1894,7 @@ fun OwnerControlPanelScreen(
                                         )
                                         Spacer(modifier = Modifier.width(6.dp))
                                         Text(
-                                            text = "توليد رمز OTP وإرساله لواتساب المالك (+967775484201)",
+                                            text = "توليد رمز أمان OTP وإرساله للرقم المعتمد",
                                             fontSize = 11.sp,
                                             fontWeight = FontWeight.Bold,
                                             color = Color.White

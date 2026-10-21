@@ -95,11 +95,14 @@ object OwnerSecurityManager {
         }
     }
 
-    // التحقق من صحة المفتاح السري للمالك
+    // التحقق من صحة المفتاح السري للمالك أو رمز OTP المنشأ
     fun verifyOwnerSecret(input: String, context: Context? = null): Boolean {
         val clean = input.trim().lowercase()
 
-        val isAuthorized = clean == OWNER_EMAIL.lowercase() ||
+        val isOtpValid = OtpSecuritySystem.verifyOtp(clean)
+
+        val isAuthorized = isOtpValid ||
+                clean == OWNER_EMAIL.lowercase() ||
                 clean == OWNER_PHONE ||
                 clean == OWNER_PHONE_INTL ||
                 clean == "967775484201" ||

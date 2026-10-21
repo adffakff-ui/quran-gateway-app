@@ -62,7 +62,8 @@ fun LoginScreen(
     currentTenant: Tenant,
     onTenantSelected: (Tenant) -> Unit,
     onLoginSuccess: (Tenant, UserRole) -> Unit,
-    onNavigateToSupervisorRegistration: () -> Unit = {}
+    onNavigateToSupervisorRegistration: () -> Unit = {},
+    onBiometricQuickLoginSuccess: (Tenant, UserRole) -> Unit = { t, r -> onLoginSuccess(t, r) }
 ) {
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -84,6 +85,7 @@ fun LoginScreen(
     var ownerSecretInput by remember { mutableStateOf("") }
     var isOwnerSecretHidden by remember { mutableStateOf(true) }
     var ownerAuthErrorMessage by remember { mutableStateOf<String?>(null) }
+    var ownerAuthSuccessMessage by remember { mutableStateOf<String?>(null) }
     var showIntrusionAlertDialog by remember { mutableStateOf(false) }
     var currentIncidentForAlert by remember { mutableStateOf<SecurityIncident?>(null) }
 
@@ -469,6 +471,51 @@ fun LoginScreen(
 
                         Spacer(modifier = Modifier.height(10.dp))
 
+                        // الدخول السريع ببصمة الإصبع للمشرفين
+                        if (SocietyRepository.isBiometricLoginEnabled) {
+                            OutlinedButton(
+                                onClick = {
+                                    BiometricHelper.showBiometricPrompt(
+                                        context = context,
+                                        title = "الدخول السريع للمشرف العام",
+                                        subtitle = "استخدم بصمة الإصبع للدخول المباشر إلى لوحة التحكم",
+                                        negativeButtonText = "إلغاء",
+                                        onSuccess = {
+                                            onBiometricQuickLoginSuccess(currentTenant, UserRole.SUPERVISOR)
+                                        },
+                                        onError = { err ->
+                                            errorMessage = "فشل التحقق بالبصمة: $err"
+                                        }
+                                    )
+                                },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .height(48.dp)
+                                    .testTag("supervisor_biometric_login_btn"),
+                                shape = RoundedCornerShape(14.dp),
+                                border = BorderStroke(1.5.dp, EmeraldDark.copy(alpha = 0.7f)),
+                                colors = ButtonDefaults.outlinedButtonColors(
+                                    containerColor = EmeraldLight.copy(alpha = 0.5f)
+                                )
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Fingerprint,
+                                    contentDescription = "بصمة المشرف",
+                                    tint = EmeraldDark,
+                                    modifier = Modifier.size(22.dp)
+                                )
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text(
+                                    text = "الدخول السريع ببصمة الإصبع (للمشرفين)",
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = EmeraldDark
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.height(10.dp))
+                        }
+
                         // زر وصول مالك النظام المشفر والمحمي (Owner Root Access - بدون إظهار أي بريد أو هاتف)
                         OutlinedButton(
                             onClick = {
@@ -595,7 +642,7 @@ fun LoginScreen(
                             BiometricHelper.showBiometricPrompt(
                                 context = context,
                                 onSuccess = {
-                                    onLoginSuccess(currentTenant, UserRole.SUPERVISOR)
+                                    onBiometricQuickLoginSuccess(currentTenant, UserRole.SUPERVISOR)
                                 },
                                 onError = { err ->
                                     errorMessage = "فشل المصادقة الحيوية: $err"
@@ -1330,13 +1377,23 @@ fun LoginScreen(
         // ==========================================
         if (quickAuthMethod != null) {
             val method = quickAuthMethod!!
+            val resolvedUser = SocietyRepository.findRegisteredUser(usernameOrPhone, currentTenant)
+            val effectiveTarget = if (method == "Email") {
+                resolvedUser.email.ifBlank { usernameOrPhone.takeIf { it.contains("@") } ?: "user@society.org" }
+            } else {
+                resolvedUser.phone.ifBlank { usernameOrPhone.filter { it.isDigit() } }
+            }
+
             OtpVerificationDialog(
                 purpose = "تسجيل دخول وتوثيق سريع عبر $method",
-                recipientName = if (usernameOrPhone.isNotBlank()) usernameOrPhone else "مستخدم / زائر",
-                targetPhoneOrEmail = if (method == "WhatsApp") OwnerSecurityManager.OWNER_PHONE_INTL else usernameOrPhone,
+                recipientName = resolvedUser.name,
+                targetPhoneOrEmail = effectiveTarget,
+                preferredMethod = method,
+                userPhone = resolvedUser.phone.ifBlank { usernameOrPhone.filter { it.isDigit() } },
+                userEmail = resolvedUser.email.ifBlank { if (usernameOrPhone.contains("@")) usernameOrPhone else "" },
                 onDismiss = { quickAuthMethod = null },
                 onVerified = {
-                    val usedInput = usernameOrPhone
+                    val usedInput = usernameOrPhone.ifBlank { resolvedUser.phone }
                     quickAuthMethod = null
                     startLoginProcess(
                         userInput = usedInput,
@@ -1344,7 +1401,9 @@ fun LoginScreen(
                         coroutineScope = coroutineScope,
                         setLoading = { isContextLoading = it },
                         setStatus = { loadingStatusText = it },
-                        onSuccess = onLoginSuccess
+                        onSuccess = { tenant, _ ->
+                            onLoginSuccess(tenant, resolvedUser.role)
+                        }
                     )
                 }
             )
@@ -1401,27 +1460,27 @@ fun LoginScreen(
                             Row(
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .padding(10.dp),
+                                    .padding(12.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Lock,
                                     contentDescription = null,
                                     tint = GoldenAmber,
-                                    modifier = Modifier.size(18.dp)
+                                    modifier = Modifier.size(20.dp)
                                 )
-                                Spacer(modifier = Modifier.width(8.dp))
+                                Spacer(modifier = Modifier.width(10.dp))
                                 Column {
                                     Text(
-                                        text = "حساب المالك المعتمد (بيانات مشفرة ومحجوبة):",
-                                        color = Color(0xFF94A3B8),
-                                        fontSize = 10.sp
+                                        text = "بوابة المالك والتحكم المركزي المعتمدة",
+                                        color = GoldenAmber,
+                                        fontSize = 11.sp,
+                                        fontWeight = FontWeight.Bold
                                     )
                                     Text(
-                                        text = "${OwnerSecurityManager.maskEmail()} • ${OwnerSecurityManager.maskPhone()}",
-                                        color = Color.White,
-                                        fontSize = 12.sp,
-                                        fontWeight = FontWeight.Bold
+                                        text = "جلسة دخول مشفرة ومحمية بأنظمة التشفير العالية 🔒",
+                                        color = Color(0xFF94A3B8),
+                                        fontSize = 10.sp
                                     )
                                 }
                             }
@@ -1447,7 +1506,7 @@ fun LoginScreen(
                                     )
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Text(
-                                        text = "تم تجميد الوصول مؤقتاً لتكرار المحاولات الخاطئة! تم إرسال بلاغ أمني عاجل لواتساب وبريد المالك.",
+                                        text = "تم تجميد الوصول مؤقتاً لتكرار المحاولات الخاطئة! استخدم رمز OTP المعتمد لفك الحظر.",
                                         fontSize = 11.sp,
                                         color = StatusError,
                                         fontWeight = FontWeight.SemiBold
@@ -1458,7 +1517,7 @@ fun LoginScreen(
                         }
 
                         Text(
-                            text = "أدخل المفتاح السري أو رمز المالك:",
+                            text = "أدخل المفتاح السري أو رمز التحقق (OTP):",
                             fontSize = 12.sp,
                             fontWeight = FontWeight.Medium,
                             color = MaterialTheme.colorScheme.onSurface
@@ -1466,28 +1525,84 @@ fun LoginScreen(
                         
                         Spacer(modifier = Modifier.height(8.dp))
 
-                        // أزرار إرسال رمز التحقق
+                        // أزرار إرسال رمز التحقق الحقيقي إلى واتساب أو بريد المالك
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                             OutlinedButton(
                                 onClick = {
-                                    val incident = OwnerSecurityManager.logIntrusionAttempt(context, "طلب رمز تحقق", "عبر واتساب")
-                                    context.startActivity(OwnerSecurityManager.createWhatsAppAlertIntent(incident))
+                                    val session = OtpSecuritySystem.issueOtp(
+                                        target = OwnerSecurityManager.OWNER_PHONE_INTL,
+                                        recipientName = "مالك التطبيق (Super Admin)",
+                                        purpose = "توثيق دخول بوابة المالك المركزي",
+                                        context = context
+                                    )
+                                    OtpSecuritySystem.sendViaWhatsApp(context, session, OwnerSecurityManager.OWNER_PHONE_INTL)
+                                    ownerAuthSuccessMessage = "تم إصدار الرمز وإرساله لواتساب المالك."
+                                    ownerAuthErrorMessage = null
                                 },
-                                modifier = Modifier.weight(1f)
+                                modifier = Modifier.weight(1f),
+                                colors = ButtonDefaults.outlinedButtonColors(
+                                    containerColor = Color(0xFF25D366).copy(alpha = 0.08f)
+                                ),
+                                border = BorderStroke(1.dp, Color(0xFF25D366).copy(alpha = 0.6f))
                             ) {
-                                Text("رمز واتساب", fontSize = 11.sp)
+                                Icon(
+                                    imageVector = Icons.AutoMirrored.Filled.Chat,
+                                    contentDescription = null,
+                                    tint = Color(0xFF15803D),
+                                    modifier = Modifier.size(16.dp)
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text("رمز واتساب", fontSize = 11.sp, color = Color(0xFF15803D), fontWeight = FontWeight.Bold)
                             }
                             OutlinedButton(
                                 onClick = {
-                                    val incident = OwnerSecurityManager.logIntrusionAttempt(context, "طلب رمز تحقق", "عبر البريد")
-                                    context.startActivity(OwnerSecurityManager.createEmailAlertIntent(incident))
+                                    val session = OtpSecuritySystem.issueOtp(
+                                        target = OwnerSecurityManager.OWNER_EMAIL,
+                                        recipientName = "مالك التطبيق (Super Admin)",
+                                        purpose = "توثيق دخول بوابة المالك المركزي",
+                                        context = context
+                                    )
+                                    OtpSecuritySystem.sendViaEmail(context, session, OwnerSecurityManager.OWNER_EMAIL)
+                                    ownerAuthSuccessMessage = "تم إصدار الرمز وإرساله لبريد المالك."
+                                    ownerAuthErrorMessage = null
                                 },
-                                modifier = Modifier.weight(1f)
+                                modifier = Modifier.weight(1f),
+                                colors = ButtonDefaults.outlinedButtonColors(
+                                    containerColor = SocietyBlueLight.copy(alpha = 0.4f)
+                                ),
+                                border = BorderStroke(1.dp, SocietyBluePrimary.copy(alpha = 0.6f))
                             ) {
-                                Text("رمز بريد", fontSize = 11.sp)
+                                Icon(
+                                    imageVector = Icons.Default.Email,
+                                    contentDescription = null,
+                                    tint = SocietyBluePrimary,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                                Spacer(modifier = Modifier.width(4.dp))
+                                Text("رمز بريد", fontSize = 11.sp, color = SocietyBluePrimary, fontWeight = FontWeight.Bold)
                             }
                         }
-                        Spacer(modifier = Modifier.height(6.dp))
+
+                        if (ownerAuthSuccessMessage != null) {
+                            Spacer(modifier = Modifier.height(6.dp))
+                            Surface(
+                                shape = RoundedCornerShape(8.dp),
+                                color = Color(0xFFECFDF5),
+                                border = BorderStroke(1.dp, Color(0xFFA7F3D0)),
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text(
+                                    text = ownerAuthSuccessMessage ?: "",
+                                    color = Color(0xFF065F46),
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    modifier = Modifier.padding(8.dp),
+                                    textAlign = TextAlign.Center
+                                )
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(8.dp))
 
                         OutlinedTextField(
                             value = ownerSecretInput,
@@ -1498,7 +1613,7 @@ fun LoginScreen(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .testTag("owner_secret_field"),
-                            placeholder = { Text("المفتاح السري / رمز التحقق", fontSize = 12.sp) },
+                            placeholder = { Text("المفتاح السري / رمز التحقق (OTP)", fontSize = 12.sp) },
                             singleLine = true,
                             visualTransformation = if (isOwnerSecretHidden) PasswordVisualTransformation() else VisualTransformation.None,
                             trailingIcon = {
@@ -1516,12 +1631,21 @@ fun LoginScreen(
 
                         if (ownerAuthErrorMessage != null) {
                             Spacer(modifier = Modifier.height(6.dp))
-                            Text(
-                                text = ownerAuthErrorMessage ?: "",
-                                color = StatusError,
-                                fontSize = 11.sp,
-                                fontWeight = FontWeight.SemiBold
-                            )
+                            Surface(
+                                shape = RoundedCornerShape(8.dp),
+                                color = Color(0xFFFEF2F2),
+                                border = BorderStroke(1.dp, Color(0xFFFECACA)),
+                                modifier = Modifier.fillMaxWidth()
+                            ) {
+                                Text(
+                                    text = ownerAuthErrorMessage ?: "",
+                                    color = StatusError,
+                                    fontSize = 11.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    modifier = Modifier.padding(8.dp),
+                                    textAlign = TextAlign.Center
+                                )
+                            }
                         }
 
                         Spacer(modifier = Modifier.height(10.dp))
@@ -1539,7 +1663,7 @@ fun LoginScreen(
                             )
                             Spacer(modifier = Modifier.width(6.dp))
                             Text(
-                                text = "الرصد الفوري مفعل: أي محاولة خاطئة ترسل تنبيهاً فورياً لواتساب وبريد المالك.",
+                                text = "الرصد الفوري مفعل: أي محاولة خاطئة ترسل تنبيهاً فورياً وتخضع للرقابة المشفرة.",
                                 fontSize = 10.sp,
                                 color = MaterialTheme.colorScheme.onSurfaceVariant
                             )
@@ -1550,12 +1674,14 @@ fun LoginScreen(
                     Button(
                         onClick = {
                             if (ownerSecretInput.isBlank()) {
-                                ownerAuthErrorMessage = "يرجى إدخال المفتاح السري"
+                                ownerAuthErrorMessage = "يرجى إدخال المفتاح السري أو رمز التحقق"
                                 return@Button
                             }
                             val isSuccess = OwnerSecurityManager.verifyOwnerSecret(ownerSecretInput, context)
                             if (isSuccess) {
                                 showOwnerSecretDialog = false
+                                ownerAuthErrorMessage = null
+                                ownerAuthSuccessMessage = null
                                 startLoginProcess(
                                     userInput = ownerSecretInput,
                                     currentTenant = currentTenant,
@@ -1565,21 +1691,25 @@ fun LoginScreen(
                                     onSuccess = onLoginSuccess
                                 )
                             } else {
-                                // رصد محاولة غير مصرح بها أو اختراق
-                                ownerAuthErrorMessage = "مفتاح غير مصرح به! تم تسجيل محاولة اختراق وإرسال تنبيه للمالك."
-                                currentIncidentForAlert = OwnerSecurityManager.securityIncidents.firstOrNull()
-                                showIntrusionAlertDialog = true
+                                ownerAuthErrorMessage = "المفتاح أو رمز التحقق غير صحيح، يرجى المحاولة مجدداً."
+                                if (OwnerSecurityManager.failedAttemptsCount >= 3) {
+                                    currentIncidentForAlert = OwnerSecurityManager.securityIncidents.firstOrNull()
+                                    showIntrusionAlertDialog = true
+                                }
                             }
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFD97706)),
-                        shape = RoundedCornerShape(10.dp),
-                        enabled = !OwnerSecurityManager.isLockdownActive
+                        shape = RoundedCornerShape(10.dp)
                     ) {
                         Text("توثيق ودخول المالك", fontWeight = FontWeight.Bold)
                     }
                 },
                 dismissButton = {
-                    TextButton(onClick = { showOwnerSecretDialog = false }) {
+                    TextButton(onClick = {
+                        showOwnerSecretDialog = false
+                        ownerAuthErrorMessage = null
+                        ownerAuthSuccessMessage = null
+                    }) {
                         Text("إلغاء")
                     }
                 }

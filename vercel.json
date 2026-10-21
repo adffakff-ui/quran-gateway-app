@@ -11,10 +11,6 @@
           "value": "nosniff"
         },
         {
-          "key": "X-Frame-Options",
-          "value": "DENY"
-        },
-        {
           "key": "Access-Control-Allow-Origin",
           "value": "*"
         }
@@ -24,15 +20,15 @@
   "routes": [
     {
       "src": "/download",
-      "dest": "/app/build/outputs/apk/debug/app-debug.apk"
+      "dest": "/app-debug.apk"
     },
     {
       "src": "/apk",
-      "dest": "/app/build/outputs/apk/debug/app-debug.apk"
+      "dest": "/app-debug.apk"
     },
     {
       "src": "/(.*)",
-      "dest": "/index.html"
+      "dest": "/$1"
     }
   ]
 }

@@ -29,7 +29,6 @@ import com.example.ui.circles.CircleDetailScreen
 import com.example.ui.dashboard.SupervisorDashboardScreen
 import com.example.ui.login.LoginScreen
 import com.example.ui.login.BiometricOptionalLoginScreen
-import com.example.ui.login.BiometricOptionalLoginScreen
 import com.example.ui.navigation.AppNavigationDrawerSheet
 import com.example.ui.parent.ParentPortalScreen
 import com.example.ui.recitation.AudioRecitationScreen
@@ -324,6 +323,19 @@ fun SocietyApp(
                                     navController.navigate(AppDestinations.SUPERVISOR_DASHBOARD) {
                                         popUpTo(AppDestinations.LOGIN) { inclusive = true }
                                     }
+                                }
+                            }
+                        },
+                        onBiometricQuickLoginSuccess = { tenant, role ->
+                            currentTenant = tenant
+                            activeUserRole = role
+                            if (role == UserRole.OWNER) {
+                                navController.navigate(AppDestinations.OWNER_CONTROL) {
+                                    popUpTo(AppDestinations.LOGIN) { inclusive = true }
+                                }
+                            } else {
+                                navController.navigate(AppDestinations.SUPERVISOR_DASHBOARD) {
+                                    popUpTo(AppDestinations.LOGIN) { inclusive = true }
                                 }
                             }
                         },
