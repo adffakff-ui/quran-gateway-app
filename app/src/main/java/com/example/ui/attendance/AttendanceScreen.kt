@@ -39,7 +39,7 @@ fun AttendanceScreen(
     onBack: () -> Unit
 ) {
     val rings = remember { SocietyRepository.getInitialRings() }
-    var selectedRing by remember { mutableStateOf(rings.first()) }
+    var selectedRing by remember { mutableStateOf(rings.firstOrNull()) }
     var selectedDate by remember { mutableStateOf("الأربعاء، 16 أكتوبر 2026") }
     var studentsAttendance by remember { mutableStateOf(SocietyRepository.getInitialCircleStudents().take(25)) }
 
@@ -92,7 +92,7 @@ fun AttendanceScreen(
                                         Icon(imageVector = Icons.Default.MenuBook, contentDescription = null, tint = SocietyBluePrimary, modifier = Modifier.size(16.dp))
                                         Spacer(modifier = Modifier.width(6.dp))
                                         Text(
-                                            text = selectedRing.name,
+                                            text = selectedRing?.name ?: "لا توجد حلقات",
                                             fontSize = 12.sp,
                                             fontWeight = FontWeight.Bold,
                                             maxLines = 1,
@@ -387,7 +387,7 @@ fun AttendanceScreen(
                 title = { Text("إضافة ملاحظة جماعية للحلقة", fontSize = 15.sp, fontWeight = FontWeight.Bold) },
                 text = {
                     Column {
-                        Text("هذه الملاحظة ستسجل في تقرير اليوم لجميع طلاب حلقة ${selectedRing.name}:", fontSize = 12.sp, color = TextMuted)
+                        Text("هذه الملاحظة ستسجل في تقرير اليوم لجميع طلاب حلقة ${selectedRing?.name ?: ""}:", fontSize = 12.sp, color = TextMuted)
                         Spacer(modifier = Modifier.height(8.dp))
                         OutlinedTextField(
                             value = groupNoteText,
@@ -427,7 +427,7 @@ fun AttendanceScreen(
                 text = {
                     Column {
                         Text(
-                            text = "سيتم إرسال رسائل SMS وتنبيهات عبر التطبيق لأولياء أمور الطلاب الغائبين في حلقة ${selectedRing.name}:",
+                            text = "سيتم إرسال رسائل SMS وتنبيهات عبر التطبيق لأولياء أمور الطلاب الغائبين في حلقة ${selectedRing?.name ?: ""}:",
                             fontSize = 12.sp,
                             color = TextDark
                         )
@@ -548,7 +548,7 @@ fun AttendanceScreen(
                 confirmButton = {
                     Button(
                         onClick = {
-                            snackbarMessage = "تم تنزيل كشف الحضور: attendance_${selectedRing.id}_20261016.csv"
+                            snackbarMessage = "تم تنزيل كشف الحضور: attendance_${selectedRing?.id ?: ""}_20261016.csv"
                             showExportSuccessModal = false
                         },
                         colors = ButtonDefaults.buttonColors(containerColor = SocietyBluePrimary)

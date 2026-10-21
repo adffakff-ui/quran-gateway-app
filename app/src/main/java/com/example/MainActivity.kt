@@ -28,6 +28,8 @@ import com.example.ui.attendance.AttendanceScreen
 import com.example.ui.circles.CircleDetailScreen
 import com.example.ui.dashboard.SupervisorDashboardScreen
 import com.example.ui.login.LoginScreen
+import com.example.ui.login.BiometricOptionalLoginScreen
+import com.example.ui.login.BiometricOptionalLoginScreen
 import com.example.ui.navigation.AppNavigationDrawerSheet
 import com.example.ui.parent.ParentPortalScreen
 import com.example.ui.recitation.AudioRecitationScreen
@@ -41,9 +43,13 @@ import com.example.ui.profile.AccountProfileAndPermissionsScreen
 import com.example.ui.profile.RolePermissionManagementScreen
 import com.example.ui.backup.TenantBackupRestoreScreen
 import com.example.ui.settings.AppSettingsScreen
+import com.example.ui.settings.SettingsScreen
+import com.example.ui.settings.AboutSocietyScreen
+import com.example.ui.security.ConnectedDevicesScreen
 import com.example.ui.owner.OwnerControlPanelScreen
 import com.example.ui.owner.OwnerFirestoreTenantsScreen
 import com.example.ui.theme.*
+import com.example.data.SocietyRepository
 import kotlinx.coroutines.launch
 
 object AppDestinations {
@@ -65,6 +71,9 @@ object AppDestinations {
     const val TENANT_BACKUP_RESTORE = "tenant_backup_restore"
     const val ROLE_PERMISSIONS = "role_permissions"
     const val SETTINGS = "app_settings"
+    const val BIOMETRIC_GATE = "biometric_gate"
+    const val CONNECTED_DEVICES = "connected_devices"
+    const val ABOUT_SOCIETY = "about_society"
 }
 
 class MainActivity : FragmentActivity() {
@@ -302,19 +311,38 @@ fun SocietyApp(
                         onLoginSuccess = { tenant, role ->
                             currentTenant = tenant
                             activeUserRole = role
-                            if (role == UserRole.OWNER) {
-                                navController.navigate(AppDestinations.OWNER_CONTROL) {
+                            if (SocietyRepository.isBiometricLoginEnabled) {
+                                navController.navigate(AppDestinations.BIOMETRIC_GATE) {
                                     popUpTo(AppDestinations.LOGIN) { inclusive = true }
                                 }
                             } else {
-                                navController.navigate(AppDestinations.SUPERVISOR_DASHBOARD) {
-                                    popUpTo(AppDestinations.LOGIN) { inclusive = true }
+                                if (role == UserRole.OWNER) {
+                                    navController.navigate(AppDestinations.OWNER_CONTROL) {
+                                        popUpTo(AppDestinations.LOGIN) { inclusive = true }
+                                    }
+                                } else {
+                                    navController.navigate(AppDestinations.SUPERVISOR_DASHBOARD) {
+                                        popUpTo(AppDestinations.LOGIN) { inclusive = true }
+                                    }
                                 }
                             }
                         },
                         onNavigateToSupervisorRegistration = {
                             navController.navigate(AppDestinations.SUPERVISOR_REGISTRATION)
                         }
+                    )
+                }
+
+                composable(AppDestinations.BIOMETRIC_GATE) {
+                    BiometricOptionalLoginScreen(
+                        onSuccess = { 
+                            if (activeUserRole == UserRole.OWNER) {
+                                navController.navigate(AppDestinations.OWNER_CONTROL) { popUpTo(AppDestinations.BIOMETRIC_GATE) { inclusive = true } }
+                            } else {
+                                navController.navigate(AppDestinations.SUPERVISOR_DASHBOARD) { popUpTo(AppDestinations.BIOMETRIC_GATE) { inclusive = true } }
+                            }
+                        },
+                        onError = { navController.navigate(AppDestinations.LOGIN) { popUpTo(AppDestinations.BIOMETRIC_GATE) { inclusive = true } } }
                     )
                 }
 
@@ -392,6 +420,8 @@ fun SocietyApp(
                         darkModePref = darkModePref,
                         onDarkModeChange = onDarkModeChange,
                         onNavigateToRolePermissions = { navController.navigate(AppDestinations.ROLE_PERMISSIONS) },
+                        onNavigateToConnectedDevices = { navController.navigate(AppDestinations.CONNECTED_DEVICES) },
+                        onNavigateToAboutSociety = { navController.navigate(AppDestinations.ABOUT_SOCIETY) },
                         onBack = { navController.popBackStack() }
                     )
                 }
@@ -499,13 +529,30 @@ fun SocietyApp(
                     )
                 }
 
-                // شاشة إعدادات التطبيق والسمات
+                // شاشة إعدادات التطبيق والسمات والخصوصية
                 composable(AppDestinations.SETTINGS) {
-                    AppSettingsScreen(
+                    SettingsScreen(
                         currentTenant = currentTenant,
                         onTenantUpdated = { currentTenant = it },
                         darkModePref = darkModePref,
                         onDarkModeChange = onDarkModeChange,
+                        onNavigateToConnectedDevices = { navController.navigate(AppDestinations.CONNECTED_DEVICES) },
+                        onNavigateToAboutSociety = { navController.navigate(AppDestinations.ABOUT_SOCIETY) },
+                        onBack = { navController.popBackStack() }
+                    )
+                }
+
+                // شاشة إدارة الأجهزة المرتبطة والجلسات النشطة للمشرف
+                composable(AppDestinations.CONNECTED_DEVICES) {
+                    ConnectedDevicesScreen(
+                        onBack = { navController.popBackStack() }
+                    )
+                }
+
+                // صفحة تعريفية تستعرض رؤية وأهداف الجمعية الرقمية ومعلومات التواصل المباشرة
+                composable(AppDestinations.ABOUT_SOCIETY) {
+                    AboutSocietyScreen(
+                        currentTenant = currentTenant,
                         onBack = { navController.popBackStack() }
                     )
                 }

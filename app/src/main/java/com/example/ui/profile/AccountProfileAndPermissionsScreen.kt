@@ -22,9 +22,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.platform.LocalContext
+import com.example.data.SocietyRepository
 import com.example.data.Tenant
 import com.example.data.UserRole
 import com.example.ui.security.BiometricHelper
+import com.example.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -34,6 +36,8 @@ fun AccountProfileAndPermissionsScreen(
     darkModePref: String = "system",
     onDarkModeChange: (String) -> Unit = {},
     onNavigateToRolePermissions: (() -> Unit)? = null,
+    onNavigateToConnectedDevices: (() -> Unit)? = null,
+    onNavigateToAboutSociety: (() -> Unit)? = null,
     onBack: () -> Unit
 ) {
     var showUpdateDialog by remember { mutableStateOf<String?>(null) }
@@ -138,6 +142,23 @@ fun AccountProfileAndPermissionsScreen(
                             }
                         }
                     }
+                }
+            }
+
+            // Biometric Login Switch
+            item {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text("تفعيل تسجيل الدخول بالبصمة", fontWeight = FontWeight.Bold)
+                    Switch(
+                        checked = SocietyRepository.isBiometricLoginEnabled,
+                        onCheckedChange = { SocietyRepository.isBiometricLoginEnabled = it }
+                    )
                 }
             }
 
@@ -283,6 +304,36 @@ fun AccountProfileAndPermissionsScreen(
                             Icon(imageVector = Icons.Default.LockOpen, contentDescription = null, modifier = Modifier.size(18.dp))
                             Spacer(modifier = Modifier.width(8.dp))
                             Text("اختبار البصمة الحيوية (إصبع / وجه / قفل الجهاز)", fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                        }
+
+                        // زر إدارة الأجهزة المرتبطة والجلسات
+                        if (onNavigateToConnectedDevices != null) {
+                            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
+                            Button(
+                                onClick = onNavigateToConnectedDevices,
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(10.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = SocietyBluePrimary
+                                )
+                            ) {
+                                Icon(imageVector = Icons.Outlined.Devices, contentDescription = null, modifier = Modifier.size(18.dp))
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("إدارة الأجهزة والجلسات المرتبطة", fontWeight = FontWeight.Bold, fontSize = 12.sp)
+                            }
+                        }
+
+                        // زر عن الجمعية ورؤيتها الرقمية
+                        if (onNavigateToAboutSociety != null) {
+                            OutlinedButton(
+                                onClick = onNavigateToAboutSociety,
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(10.dp)
+                            ) {
+                                Icon(imageVector = Icons.Outlined.Info, contentDescription = null, modifier = Modifier.size(18.dp), tint = EmeraldGreen)
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("عن الجمعية ورؤيتنا الرقمية والتواصل", fontWeight = FontWeight.Bold, fontSize = 12.sp, color = EmeraldGreen)
+                            }
                         }
                     }
                 }

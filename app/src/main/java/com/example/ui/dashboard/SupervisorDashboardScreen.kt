@@ -407,6 +407,14 @@ fun SupervisorDashboardScreen(
                                         }
                                     )
                                     DropdownMenuItem(
+                                        text = { Text("إعدادات التطبيق والنظام") },
+                                        leadingIcon = { Icon(Icons.Default.Settings, contentDescription = null, tint = SocietyBluePrimary) },
+                                        onClick = {
+                                            showSupervisorMenu = false
+                                            onNavigateToSettings()
+                                        }
+                                    )
+                                    DropdownMenuItem(
                                         text = { Text("تسجيل الخروج") },
                                         leadingIcon = { Icon(Icons.Default.Logout, contentDescription = null, tint = StatusError) },
                                         onClick = {
@@ -418,6 +426,28 @@ fun SupervisorDashboardScreen(
                             }
                         },
                         colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.White)
+                    )
+                },
+                floatingActionButton = {
+                    ExtendedFloatingActionButton(
+                        onClick = onNavigateToSettings,
+                        icon = {
+                            Icon(
+                                imageVector = Icons.Default.Settings,
+                                contentDescription = "إعدادات النظام والتطبيق"
+                            )
+                        },
+                        text = {
+                            Text(
+                                text = "الإعدادات",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 13.sp
+                            )
+                        },
+                        containerColor = SocietyBluePrimary,
+                        contentColor = Color.White,
+                        elevation = FloatingActionButtonDefaults.elevation(defaultElevation = 6.dp),
+                        modifier = Modifier.testTag("dashboard_settings_fab")
                     )
                 },
                 containerColor = SlateBackground
