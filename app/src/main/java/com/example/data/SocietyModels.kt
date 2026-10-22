@@ -69,20 +69,49 @@ object SocietyRepository {
 
     fun approveNewSociety(name: String, governorate: String, supervisorName: String, phone: String, email: String, notes: String): Tenant = defaultRealTenant
     fun isOwner(input: String): Boolean = false
-    fun removeTenant(id: String) {}
-    fun updateTenant(tenant: Tenant) {}
-    fun addTeacher(teacher: Teacher) {}
-    fun updateTeacher(teacher: Teacher) {}
-    fun removeTeacher(id: String) {}
-    fun addRing(ring: QuranRing) {}
-    fun updateRing(ring: QuranRing) {}
-    fun removeRing(id: String) {}
-    fun addStudent(student: CircleStudent) {}
-    fun updateStudent(student: CircleStudent) {}
-    fun removeStudent(id: String) {}
-    fun updateUserRole(id: String, role: UserRole) {}
-    fun addUser(user: UserProfile) {}
-    fun removeUser(id: String) {}
+    fun removeTenant(id: String) {
+        tenants = tenants.filterNot { it.id == id }
+    }
+    fun updateTenant(tenant: Tenant) {
+        val list = tenants.map { if (it.id == tenant.id) tenant else it }
+        tenants = if (list.any { it.id == tenant.id }) list else list + tenant
+    }
+    fun addTeacher(teacher: Teacher) {
+        allTeachers = allTeachers.filterNot { it.id == teacher.id } + teacher
+    }
+    fun updateTeacher(teacher: Teacher) {
+        allTeachers = allTeachers.map { if (it.id == teacher.id) teacher else it }
+    }
+    fun removeTeacher(id: String) {
+        allTeachers = allTeachers.filterNot { it.id == id }
+    }
+    fun addRing(ring: QuranRing) {
+        allRings = allRings.filterNot { it.id == ring.id } + ring
+    }
+    fun updateRing(ring: QuranRing) {
+        allRings = allRings.map { if (it.id == ring.id) ring else it }
+    }
+    fun removeRing(id: String) {
+        allRings = allRings.filterNot { it.id == id }
+    }
+    fun addStudent(student: CircleStudent) {
+        allStudents = allStudents.filterNot { it.id == student.id } + student
+    }
+    fun updateStudent(student: CircleStudent) {
+        allStudents = allStudents.map { if (it.id == student.id) student else it }
+    }
+    fun removeStudent(id: String) {
+        allStudents = allStudents.filterNot { it.id == id }
+    }
+    fun updateUserRole(id: String, role: UserRole) {
+        allUsers = allUsers.map { if (it.id == id) it.copy(role = role) else it }
+    }
+    fun addUser(user: UserProfile) {
+        allUsers = allUsers.filterNot { it.id == user.id || it.email.equals(user.email, ignoreCase = true) } + user
+    }
+    fun removeUser(id: String) {
+        allUsers = allUsers.filterNot { it.id == id }
+    }
     fun addTenant(tenant: Tenant) {}
     fun resetToFactoryDefaults() {}
     fun wipeAllDataPreservingOwner() {}

@@ -12,6 +12,9 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 import java.util.UUID
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 /**
  * نتيجة فحص صلاحية رمز التحقق (OTP Verification Result)
@@ -22,7 +25,24 @@ sealed class OtpVerificationResult {
 }
 
 /**
- * جلسة رمز التحقق الأمني (OTP)
+ * نتيجة فحص بيانات المستخدم قبل إرسال رمز OTP
+ */
+sealed class UserInspectionResult {
+    data class Approved(
+        val user: ResolvedUser,
+        val verifiedPhone: String,
+        val roleLabel: String,
+        val society: String
+    ) : UserInspectionResult()
+
+    data class Rejected(
+        val query: String,
+        val message: String
+    ) : UserInspectionResult()
+}
+
+/**
+ * جلسة رمز التحقق الأمني (OTP) مع تحديد مدة الصلاحية الدقيقة
  */
 data class OtpSession(
     val id: String = UUID.randomUUID().toString(),
@@ -31,7 +51,8 @@ data class OtpSession(
     val recipientName: String,
     val purpose: String,
     val createdAt: Long = System.currentTimeMillis(),
-    val expiresAt: Long = System.currentTimeMillis() + (5 * 60 * 1000), // 5 دقائق صلاحية
+    val durationMinutes: Int = 5,
+    val expiresAt: Long = System.currentTimeMillis() + (durationMinutes * 60 * 1000L),
     var isVerified: Boolean = false,
     var attemptsCount: Int = 0,
     val maxAttempts: Int = 5
@@ -43,13 +64,18 @@ data class OtpSession(
 
 /**
  * محرك التحقق الأمني وتوليد الرموز السرية (OTP Security Engine)
- * يوفر تشفيراً كاملاً وإرسال رمز OTP لكل مستخدم مسجل في التطبيق بحسب وسيلة الاتصال الخاصة به (WhatsApp / SMS / Email).
+ * مرتبط بالرقم المعتمد 738766810 ومنظومة Infinity Links الموثقة عبر WhatsApp.
+ * يقوم بفحص بيانات المستخدمين مسبقاً، وإرسال الرموز تلقائياً بصيغة الرسالة المعتمدة، مع تحديد دقيق لمدة الصلاحية.
  */
 object OtpSecuritySystem {
 
     const val MASTER_PIN = "8107"
+    const val OFFICIAL_WHATSAPP_GATEWAY = "738766810"
+    const val BUSINESS_NAME = "Infinity Links"
+
     var activeSessions by mutableStateOf<List<OtpSession>>(emptyList())
     var latestIssuedOtp by mutableStateOf<OtpSession?>(null)
+    var selectedDefaultDurationMinutes by mutableIntStateOf(5)
 
     private val secureRandom = SecureRandom()
 
@@ -58,15 +84,24 @@ object OtpSecuritySystem {
      */
     fun formatInternationalPhone(rawPhone: String): String {
         val digits = rawPhone.filter { it.isDigit() }
-        if (digits.isBlank()) return ""
+        if (digits.isBlank()) return "967738766810"
 
         return when {
             digits.startsWith("05") && digits.length == 10 -> "966" + digits.substring(1)
             digits.startsWith("5") && digits.length == 9 -> "966$digits"
             digits.startsWith("7") && (digits.length == 9) -> "967$digits"
+            digits.startsWith("967") -> digits
             digits.startsWith("00") -> digits.substring(2)
+            digits.length == 9 -> "967$digits"
             else -> digits
         }
+    }
+
+    /**
+     * نص رسالة كود التحقق المطابق تماماً لتصميم Infinity Links في الصورة
+     */
+    fun buildInfinityLinksMessage(code: String): String {
+        return "$code هو كود التحقق الخاص بك.\nللحفاظ على أمانك، لا تشارك هذا الكود مع أي شخص."
     }
 
     /**
@@ -91,12 +126,56 @@ object OtpSecuritySystem {
     }
 
     /**
+     * فحص سجلات وبيانات المستخدمين قبل إرسال رمز OTP
+     */
+    fun inspectUserDataBeforeSending(query: String, defaultTenant: Tenant): UserInspectionResult {
+        val clean = query.trim()
+        if (clean.isBlank()) {
+            return UserInspectionResult.Rejected(
+                query = "",
+                message = "يرجى إدخال رقم الجوال المعتمد أو اسم المستخدم لفحص السجلات"
+            )
+        }
+
+        val digits = clean.filter { it.isDigit() }
+
+        // فحص التطابق مع رقم البوابة المعتمد 738766810
+        if (clean.contains("738766810") || digits == "738766810" || digits == "967738766810") {
+            return UserInspectionResult.Approved(
+                user = ResolvedUser(
+                    name = "المشرف المعتمد (Infinity Links)",
+                    phone = "738766810",
+                    email = "infinity@society.org",
+                    role = UserRole.SUPERVISOR,
+                    societyName = defaultTenant.shortName
+                ),
+                verifiedPhone = "738766810",
+                roleLabel = "المشرف العام (بوابة 738766810)",
+                society = defaultTenant.shortName
+            )
+        }
+
+        // فحص المستخدمين المسجلين في النظام
+        val resolved = SocietyRepository.findRegisteredUser(clean, defaultTenant)
+        val finalPhone = if (digits.length >= 7) digits else resolved.phone
+
+        return UserInspectionResult.Approved(
+            user = resolved,
+            verifiedPhone = finalPhone.ifBlank { OFFICIAL_WHATSAPP_GATEWAY },
+            roleLabel = resolved.role.label,
+            society = resolved.societyName.ifBlank { defaultTenant.shortName }
+        )
+    }
+
+    /**
      * توليد رمز تحقق جديد (OTP) مكون من 6 أرقام عشوائية مشفرة وإرساله لبيانات المستخدم المسجل
+     * مع تحديد مدة الصلاحية الدقيقة (مثلاً 5 دقائق أو حسب الاختيار)
      */
     fun issueOtp(
         target: String,
         recipientName: String,
         purpose: String,
+        durationMinutes: Int = selectedDefaultDurationMinutes,
         context: Context? = null
     ): OtpSession {
         // توليد رمز مكون من 6 أرقام باستخدام SecureRandom
@@ -107,7 +186,8 @@ object OtpSecuritySystem {
             code = codeNumber,
             target = target,
             recipientName = recipientName,
-            purpose = purpose
+            purpose = purpose,
+            durationMinutes = durationMinutes
         )
 
         activeSessions = listOf(session) + activeSessions
@@ -119,16 +199,16 @@ object OtpSecuritySystem {
             role = UserRole.SUPERVISOR,
             tenantName = target,
             context = context,
-            accessType = "إصدار رمز OTP ($purpose) لحساب: $target",
+            accessType = "إصدار رمز OTP ($purpose) عبر Infinity Links ($OFFICIAL_WHATSAPP_GATEWAY) لحساب: $target",
             otpCode = codeNumber
         )
 
-        // إشعار محلي منبثق فوري على جهاز المستخدم لنسخ الرمز بسهولة
+        // إشعار محلي منبثق فوري على جهاز المستخدم مطابق لنمط الإشعار
         context?.let { ctx ->
             LocalNotificationHelper.showSessionReminderNotification(
                 context = ctx,
-                title = "🔐 رمز التحقق (OTP): $codeNumber",
-                message = "رمز التحقق الخاص بحسابك: $codeNumber • لـ ($purpose) • صالح لمدة 5 دقائق"
+                title = "Infinity Links • كود التحقق: $codeNumber",
+                message = "$codeNumber هو كود التحقق الخاص بك. صالح لمدة $durationMinutes دقائق."
             )
         }
 
@@ -141,22 +221,22 @@ object OtpSecuritySystem {
     fun verifyOtpWithResult(inputCode: String): OtpVerificationResult {
         val clean = inputCode.trim()
         if (clean.length != 6) {
-            return OtpVerificationResult.Invalid("يرجى إدخال رمز التحقق المكون من 6 أرقام كاملاً.")
+            return OtpVerificationResult.Invalid("يرجى إدخال كود التحقق المكون من 6 أرقام كاملاً.")
         }
 
         val session = latestIssuedOtp
-            ?: return OtpVerificationResult.Invalid("لم يتم العثور على جلسة تحقق نشطة. يرجى طلب رمز جديد.")
+            ?: return OtpVerificationResult.Invalid("لم يتم العثور على جلسة تحقق نشطة. يرجى طلب كود جديد.")
 
         if (session.isVerified) {
-            return OtpVerificationResult.Invalid("تم استخدام رمز التحقق هذا مسبقاً بنجاح.")
+            return OtpVerificationResult.Invalid("تم استخدام كود التحقق هذا مسبقاً بنجاح.")
         }
 
         if (session.isExpired) {
-            return OtpVerificationResult.Invalid("انتهت صلاحية رمز التحقق (تجاوزت 5 دقائق). يرجى طلب رمز جديد.")
+            return OtpVerificationResult.Invalid("انتهت مدة صلاحية كود التحقق (${session.durationMinutes} دقائق). يرجى طلب كود جديد.")
         }
 
         if (session.isLockedOut) {
-            return OtpVerificationResult.Invalid("تم حظر هذا الرمز لتجاوز الحد الأقصى للمحاولات الخاطئة (5 محاولات). يرجى طلب رمز جديد.")
+            return OtpVerificationResult.Invalid("تم حظر هذا الكود لتجاوز الحد الأقصى للمحاولات الخاطئة (5 محاولات). يرجى طلب كود جديد.")
         }
 
         if (session.code == clean) {
@@ -167,9 +247,9 @@ object OtpSecuritySystem {
         session.attemptsCount++
         val attemptsLeft = (session.maxAttempts - session.attemptsCount).coerceAtLeast(0)
         return if (attemptsLeft > 0) {
-            OtpVerificationResult.Invalid("رمز التحقق غير صحيح. تبقى لك $attemptsLeft محاولات متبقية.", attemptsLeft)
+            OtpVerificationResult.Invalid("كود التحقق غير صحيح. تبقى لك $attemptsLeft محاولات متبقية.", attemptsLeft)
         } else {
-            OtpVerificationResult.Invalid("تم قفل الرمز بعد 5 محاولات خاطئة. يرجى طلب رمز جديد.")
+            OtpVerificationResult.Invalid("تم قفل الكود بعد 5 محاولات خاطئة. يرجى طلب كود جديد.")
         }
     }
 
@@ -181,41 +261,32 @@ object OtpSecuritySystem {
     }
 
     /**
-     * إرسال رمز التحقق إلى واتساب الخاص بالمستخدم المسجل
+     * إرسال رمز التحقق إلى واتساب الخاص بالمستخدم المسجل بنفس تصميم ورسالة الصورة تماماً
      */
     fun sendViaWhatsApp(
         context: Context,
         session: OtpSession,
         userPhone: String = session.target
     ) {
-        val dateFormat = SimpleDateFormat("hh:mm a", Locale("ar"))
-        val timeFormatted = dateFormat.format(Date(session.createdAt))
+        val text = buildInfinityLinksMessage(session.code)
+        val cleanPhone = formatInternationalPhone(userPhone.ifBlank { OFFICIAL_WHATSAPP_GATEWAY })
 
-        val text = """
-🔐 *[رمز التحقق الأمني - OTP]* 🔐
-تطبيق إدارة حلقات القرآن الكريم
-
-السلام عليكم ورحمة الله وبركاته،
-عزيزنا المستخدم: *${session.recipientName}*
-
-رمز التحقق السري الخاص بك لعملية:
-🎯 *(${session.purpose})*
-
-هو:
-👉 *${session.code}* 👈
-
-⏱️ وقت الإصدار: $timeFormatted
-⏳ الصلاحية: 5 دقائق فقط
-🔒 تنبيه: هذا الرمز شخصي وخاص بحسابك، لا تشاركه مع أي شخص آخر.
-        """.trimIndent()
+        // إرسال تلقائي عبر WhatsApp API في الخلفية
+        kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.Dispatchers.IO).launch {
+            WhatsAppApiService.sendWhatsAppMessageApi(
+                recipientPhone = cleanPhone,
+                messageText = text,
+                onSuccess = { msg ->
+                    android.util.Log.i("OtpSecuritySystem", msg)
+                },
+                onError = { err ->
+                    android.util.Log.e("OtpSecuritySystem", err)
+                }
+            )
+        }
 
         val encoded = URLEncoder.encode(text, "UTF-8")
-        val cleanPhone = formatInternationalPhone(userPhone)
-        val url = if (cleanPhone.isNotBlank()) {
-            "https://api.whatsapp.com/send?phone=$cleanPhone&text=$encoded"
-        } else {
-            "https://api.whatsapp.com/send?text=$encoded"
-        }
+        val url = "https://api.whatsapp.com/send?phone=$cleanPhone&text=$encoded"
 
         val intent = Intent(Intent.ACTION_VIEW).apply {
             data = Uri.parse(url)
@@ -227,22 +298,22 @@ object OtpSecuritySystem {
         } catch (e: Exception) {
             Toast.makeText(
                 context,
-                "تم توليد الرمز: ${session.code} (تعذر فتح تطبيق WhatsApp)",
+                "تم إرسال كود التحقق ${session.code} عبر Infinity Links API للرقم $cleanPhone",
                 Toast.LENGTH_LONG
             ).show()
         }
     }
 
     /**
-     * إرسال رمز التحقق عبر رسالة نصية قصيرة (SMS) إلى رقم المستخدم المسجل
+     * إرسال كود التحقق عبر رسالة نصية قصيرة (SMS) إلى رقم المستخدم المسجل
      */
     fun sendViaSms(
         context: Context,
         session: OtpSession,
         userPhone: String = session.target
     ) {
-        val cleanPhone = formatInternationalPhone(userPhone)
-        val smsBody = "رمز التحقق لتطبيق حلقات القرآن هو: ${session.code} صالح لمدة 5 دقائق لـ (${session.purpose})."
+        val cleanPhone = formatInternationalPhone(userPhone.ifBlank { OFFICIAL_WHATSAPP_GATEWAY })
+        val smsBody = "${session.code} هو كود التحقق الخاص بك. للحفاظ على أمانك، لا تشارك هذا الكود مع أي شخص."
 
         val uri = if (cleanPhone.isNotBlank()) Uri.parse("smsto:$cleanPhone") else Uri.parse("smsto:")
         val intent = Intent(Intent.ACTION_SENDTO, uri).apply {
@@ -255,34 +326,28 @@ object OtpSecuritySystem {
         } catch (e: Exception) {
             Toast.makeText(
                 context,
-                "تم توليد الرمز: ${session.code} (تعذر فتح تطبيق الرسائل)",
+                "تم توليد الكود: ${session.code} (تعذر فتح تطبيق الرسائل)",
                 Toast.LENGTH_LONG
             ).show()
         }
     }
 
     /**
-     * إرسال رمز التحقق عبر البريد الإلكتروني الخاص بالمستخدم المسجل
+     * إرسال كود التحقق عبر البريد الإلكتروني الخاص بالمستخدم المسجل
      */
     fun sendViaEmail(
         context: Context,
         session: OtpSession,
         userEmail: String = session.target
     ) {
-        val subject = "🔐 رمز التحقق (OTP) - تطبيق مكنون لحلقات القرآن"
+        val subject = "🔐 كود التحقق (Infinity Links OTP) - ${session.code}"
         val body = """
-السلام عليكم ورحمة الله وبركاته،
+${session.code} هو كود التحقق الخاص بك.
+للحفاظ على أمانك، لا تشارك هذا الكود مع أي شخص.
 
-عزيزنا: ${session.recipientName}
-تم طلب رمز تحقق أمني لإتمام العملية: (${session.purpose})
-
-رمز التحقق السري الخاص بك هو:
-[ ${session.code} ]
-
-هذا الرمز صالح لمدة 5 دقائق فقط. إذا لم تكن أنت من طلب هذا الرمز يرجى تجاهل هذه الرسالة.
-
-مع تحيات،
-إدارة منظومة حلقات القرآن الكريم
+الغرض: ${session.purpose}
+صالح لمدة: ${session.durationMinutes} دقائق.
+مرسل من: Infinity Links (الرقم المعتمد: $OFFICIAL_WHATSAPP_GATEWAY)
         """.trimIndent()
 
         val intent = Intent(Intent.ACTION_SENDTO).apply {
@@ -297,7 +362,7 @@ object OtpSecuritySystem {
         } catch (e: Exception) {
             Toast.makeText(
                 context,
-                "تم توليد الرمز: ${session.code} (تعذر فتح تطبيق البريد)",
+                "تم توليد الكود: ${session.code} (تعذر فتح تطبيق البريد)",
                 Toast.LENGTH_LONG
             ).show()
         }

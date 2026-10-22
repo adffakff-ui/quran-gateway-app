@@ -24,5 +24,12 @@ service cloud.firestore {
       allow update: if isAuthenticated() && isValidTenant();
       allow delete: if isAuthenticated();
     }
+
+    match /users/{userId} {
+      // Anyone authenticated can read user profiles, and users can create/update their own profile
+      allow read: if isAuthenticated();
+      allow create, update: if isAuthenticated() && request.auth.uid == userId;
+      allow delete: if isAuthenticated() && request.auth.uid == userId;
+    }
   }
 }

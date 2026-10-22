@@ -582,29 +582,7 @@ fun LoginScreen(
 
                         Spacer(modifier = Modifier.height(12.dp))
 
-                        // فاصل خفيف
-                        HorizontalDivider(color = BorderSubtle)
 
-                        Spacer(modifier = Modifier.height(14.dp))
-
-                        // روابط التسجيل
-                        Column(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalAlignment = Alignment.CenterHorizontally,
-                            verticalArrangement = Arrangement.spacedBy(6.dp)
-                        ) {
-                            TextButton(
-                                onClick = { showRegisterDialog = true },
-                                modifier = Modifier.testTag("register_new_account_link")
-                            ) {
-                                Text(
-                                    text = "تسجيل حساب جديد (ولي أمر / معلم)",
-                                    fontSize = 13.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = EmeraldDark
-                                )
-                            }
-                        }
                     }
                 }
 
@@ -674,99 +652,6 @@ fun LoginScreen(
                         )
                     }
 
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.spacedBy(10.dp)
-                    ) {
-                        // WhatsApp
-                        OutlinedButton(
-                            onClick = { quickAuthMethod = "WhatsApp" },
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(46.dp)
-                                .testTag("auth_whatsapp_btn"),
-                            shape = RoundedCornerShape(12.dp),
-                            border = BorderStroke(1.dp, Color(0xFF25D366).copy(alpha = 0.5f)),
-                            colors = ButtonDefaults.outlinedButtonColors(
-                                containerColor = Color(0xFF25D366).copy(alpha = 0.08f)
-                            ),
-                            contentPadding = PaddingValues(horizontal = 4.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.AutoMirrored.Filled.Chat,
-                                contentDescription = "WhatsApp",
-                                tint = Color(0xFF15803D),
-                                modifier = Modifier.size(18.dp)
-                            )
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text(
-                                text = "WhatsApp",
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color(0xFF15803D)
-                            )
-                        }
-
-                        // SMS
-                        OutlinedButton(
-                            onClick = { quickAuthMethod = "SMS" },
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(46.dp)
-                                .testTag("auth_sms_btn"),
-                            shape = RoundedCornerShape(12.dp),
-                            border = BorderStroke(1.dp, GoldenAmber.copy(alpha = 0.5f)),
-                            colors = ButtonDefaults.outlinedButtonColors(
-                                containerColor = GoldenAmberLight.copy(alpha = 0.4f)
-                            ),
-                            contentPadding = PaddingValues(horizontal = 4.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Sms,
-                                contentDescription = "SMS",
-                                tint = GoldenAmber,
-                                modifier = Modifier.size(18.dp)
-                            )
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text(
-                                text = "SMS",
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = GoldenAmber
-                            )
-                        }
-
-                        // Email
-                        OutlinedButton(
-                            onClick = { quickAuthMethod = "Email" },
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(46.dp)
-                                .testTag("auth_email_btn"),
-                            shape = RoundedCornerShape(12.dp),
-                            border = BorderStroke(1.dp, SocietyBluePrimary.copy(alpha = 0.5f)),
-                            colors = ButtonDefaults.outlinedButtonColors(
-                                containerColor = SocietyBlueLight.copy(alpha = 0.6f)
-                            ),
-                            contentPadding = PaddingValues(horizontal = 4.dp)
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.Email,
-                                contentDescription = "Email",
-                                tint = SocietyBluePrimary,
-                                modifier = Modifier.size(18.dp)
-                            )
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text(
-                                text = "Email",
-                                fontSize = 12.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = SocietyBluePrimary
-                            )
-                        }
-                    }
 
                     Spacer(modifier = Modifier.height(24.dp))
 
@@ -1377,19 +1262,20 @@ fun LoginScreen(
         // ==========================================
         if (quickAuthMethod != null) {
             val method = quickAuthMethod!!
-            val resolvedUser = SocietyRepository.findRegisteredUser(usernameOrPhone, currentTenant)
+            val inputTarget = usernameOrPhone.ifBlank { "738766810" }
+            val resolvedUser = SocietyRepository.findRegisteredUser(inputTarget, currentTenant)
             val effectiveTarget = if (method == "Email") {
                 resolvedUser.email.ifBlank { usernameOrPhone.takeIf { it.contains("@") } ?: "user@society.org" }
             } else {
-                resolvedUser.phone.ifBlank { usernameOrPhone.filter { it.isDigit() } }
+                resolvedUser.phone.ifBlank { usernameOrPhone.filter { it.isDigit() } }.ifBlank { "738766810" }
             }
 
             OtpVerificationDialog(
-                purpose = "تسجيل دخول وتوثيق سريع عبر $method",
+                purpose = "تسجيل دخول وتوثيق سريع عبر $method (Infinity Links)",
                 recipientName = resolvedUser.name,
                 targetPhoneOrEmail = effectiveTarget,
                 preferredMethod = method,
-                userPhone = resolvedUser.phone.ifBlank { usernameOrPhone.filter { it.isDigit() } },
+                userPhone = effectiveTarget,
                 userEmail = resolvedUser.email.ifBlank { if (usernameOrPhone.contains("@")) usernameOrPhone else "" },
                 onDismiss = { quickAuthMethod = null },
                 onVerified = {

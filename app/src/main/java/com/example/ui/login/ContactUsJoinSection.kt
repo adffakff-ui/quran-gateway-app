@@ -42,6 +42,8 @@ import com.example.ui.theme.*
 
 private const val SUPPORT_EMAIL = "adffakff@gmail.com"
 private const val BACKUP_SUPPORT_EMAIL = "join@quran-society.org"
+private const val OWNER_WHATSAPP_NUMBER = "967738766810"
+private const val OWNER_WHATSAPP_DISPLAY = "738766810"
 
 // ألوان واضحة عالية التباين لحل مشكلة عدم ظهور الخط أثناء الكتابة
 private val FieldTextColor = Color(0xFF0F172A) // أسود كحلي غامق جداً وواضح
@@ -164,415 +166,164 @@ fun ContactUsJoinSection(
         Toast.makeText(context, "تمت الموافقة واعتماد جمعية \"${newTenant.shortName}\" بنجاح!", Toast.LENGTH_LONG).show()
     }
 
-    Card(
-        modifier = modifier
-            .fillMaxWidth()
-            .widthIn(max = 520.dp)
-            .testTag("contact_us_card"),
-        shape = RoundedCornerShape(20.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
-        elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
-        border = BorderStroke(1.dp, SocietyBluePrimary.copy(alpha = 0.15f))
-    ) {
-        Column(
+    Box(modifier = modifier.fillMaxWidth()) {
+        Card(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(18.dp)
+                .widthIn(max = 520.dp)
+                .testTag("contact_us_card"),
+            shape = RoundedCornerShape(20.dp),
+            colors = CardDefaults.cardColors(containerColor = Color.White),
+            elevation = CardDefaults.cardElevation(defaultElevation = 3.dp),
+            border = BorderStroke(1.dp, SocietyBluePrimary.copy(alpha = 0.15f))
         ) {
-            // Header Bar
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Row(
-                    verticalAlignment = Alignment.CenterVertically,
-                    modifier = Modifier.weight(1f)
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(44.dp)
-                            .clip(CircleShape)
-                            .background(
-                                Brush.linearGradient(
-                                    listOf(SocietyBluePrimary, EmeraldGreen)
-                                )
-                            ),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.MailOutline,
-                            contentDescription = "تواصل معنا",
-                            tint = Color.White,
-                            modifier = Modifier.size(24.dp)
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.width(12.dp))
-
-                    Column {
-                        Text(
-                            text = "تواصل معنا | طلب انضمام جمعية",
-                            fontSize = 15.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = TextDark
-                        )
-                        Text(
-                            text = "إضافة جمعيتكم إلى المنظومة الإلكترونية",
-                            fontSize = 11.sp,
-                            color = SocietyBluePrimary,
-                            fontWeight = FontWeight.Medium
-                        )
-                    }
-                }
-
-                // Toggle Expand/Collapse Button
-                IconButton(
-                    onClick = { isExpanded = !isExpanded },
-                    modifier = Modifier
-                        .testTag("contact_us_toggle_button")
-                        .size(38.dp)
-                ) {
-                    Icon(
-                        imageVector = if (isExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
-                        contentDescription = if (isExpanded) "طي النموذج" else "فتح النموذج",
-                        tint = TextMuted
-                    )
-                }
-            }
-
-            Spacer(modifier = Modifier.height(10.dp))
-
-            Text(
-                text = "هل تشرف على جمعية أو مركز قرآني وترغب بربطه بالمنظومة وإصدار لوحة تحكم متكاملة؟ أرسل طلبك وسيتواصل معك الدعم الفني.",
-                fontSize = 12.sp,
-                color = TextMuted,
-                lineHeight = 18.sp
-            )
-
-            // Direct support email pill badge (pressable without revealing email)
-            Spacer(modifier = Modifier.height(10.dp))
-            Surface(
-                color = SocietyBlueLight,
-                shape = RoundedCornerShape(10.dp),
-                border = BorderStroke(1.dp, SocietyBluePrimary.copy(alpha = 0.2f)),
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable {
-                        val directIntent = Intent(Intent.ACTION_SENDTO).apply {
-                            data = Uri.parse("mailto:$SUPPORT_EMAIL?subject=${Uri.encode("استفسار للدعم الفني")}")
-                        }
-                        try {
-                            context.startActivity(directIntent)
-                        } catch (e: Exception) {
-                            clipboardManager.setText(AnnotatedString(SUPPORT_EMAIL))
-                            Toast.makeText(context, "تم نسخ بيانات التواصل للدعم الفني", Toast.LENGTH_SHORT).show()
-                        }
-                    }
-                    .testTag("support_email_pill")
+                    .padding(18.dp)
             ) {
+                // Header Bar (lines 185-244)
                 Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 12.dp, vertical = 8.dp),
+                    modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.Outlined.SupportAgent,
-                            contentDescription = null,
-                            tint = SocietyBluePrimary,
-                            modifier = Modifier.size(18.dp)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = "تواصل مع فريق الدعم الفني والتقني (اضغط هنا)",
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            color = SocietyBluePrimary
-                        )
-                    }
-                    Icon(
-                        imageVector = Icons.Default.ArrowForward,
-                        contentDescription = null,
-                        tint = SocietyBluePrimary,
-                        modifier = Modifier.size(16.dp)
-                    )
-                }
-            }
-
-            // Expandable Form
-            AnimatedVisibility(
-                visible = isExpanded,
-                enter = expandVertically() + fadeIn(),
-                exit = shrinkVertically() + fadeOut()
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(top = 14.dp)
-                ) {
-                    HorizontalDivider(color = BorderSubtle, thickness = 1.dp)
-                    Spacer(modifier = Modifier.height(14.dp))
-
-                    // Error Message Banner
-                    if (errorMessage != null) {
-                        Surface(
-                            color = Color(0xFFFEF2F2),
-                            shape = RoundedCornerShape(10.dp),
-                            border = BorderStroke(1.dp, Color(0xFFFCA5A5)),
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        modifier = Modifier.weight(1f)
+                    ) {
+                        Box(
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .testTag("contact_error_banner")
+                                .size(44.dp)
+                                .clip(CircleShape)
+                                .background(
+                                    Brush.linearGradient(
+                                        listOf(SocietyBluePrimary, EmeraldGreen)
+                                    )
+                                ),
+                            contentAlignment = Alignment.Center
                         ) {
-                            Row(
-                                modifier = Modifier.padding(10.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.ErrorOutline,
-                                    contentDescription = "خطأ",
-                                    tint = StatusError,
-                                    modifier = Modifier.size(18.dp)
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Text(
-                                    text = errorMessage.orEmpty(),
-                                    fontSize = 12.sp,
-                                    color = StatusError,
-                                    fontWeight = FontWeight.Medium
-                                )
-                            }
+                            Icon(
+                                imageVector = Icons.Default.MailOutline,
+                                contentDescription = "تواصل معنا",
+                                tint = Color.White,
+                                modifier = Modifier.size(24.dp)
+                            )
                         }
-                        Spacer(modifier = Modifier.height(12.dp))
+
+                        Spacer(modifier = Modifier.width(12.dp))
+
+                        Column {
+                            Text(
+                                text = "تواصل معنا | طلب انضمام جمعية",
+                                fontSize = 15.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = TextDark
+                            )
+                            Text(
+                                text = "إضافة جمعيتكم إلى المنظومة الإلكترونية",
+                                fontSize = 11.sp,
+                                color = SocietyBluePrimary,
+                                fontWeight = FontWeight.Medium
+                            )
+                        }
                     }
 
-                    // نمط الخط وحزم الألوان المشتركة لضمان ظهور النص والكتابة بوضوح
-                    val inputTextStyle = TextStyle(
-                        color = FieldTextColor,
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                    val inputFieldColors = OutlinedTextFieldDefaults.colors(
-                        focusedTextColor = FieldTextColor,
-                        unfocusedTextColor = FieldTextColor,
-                        focusedContainerColor = FieldBgColor,
-                        unfocusedContainerColor = FieldBgColor,
-                        cursorColor = SocietyBluePrimary,
-                        focusedBorderColor = SocietyBluePrimary,
-                        unfocusedBorderColor = BorderSubtle,
-                        focusedLabelColor = SocietyBluePrimary,
-                        unfocusedLabelColor = FieldLabelColor,
-                        focusedPlaceholderColor = FieldPlaceholderColor,
-                        unfocusedPlaceholderColor = FieldPlaceholderColor
-                    )
-
-                    // الحقل 1: اسم الجمعية أو المركز
-                    OutlinedTextField(
-                        value = societyName,
-                        onValueChange = {
-                            societyName = it
-                            if (errorMessage != null) errorMessage = null
-                        },
-                        textStyle = inputTextStyle,
-                        label = { Text("اسم الجمعية / المركز القرآني *", fontSize = 12.sp, fontWeight = FontWeight.Bold) },
-                        placeholder = { Text("مثال: جمعية معاذ العلمية أو دار الفرقان", fontSize = 12.sp) },
-                        leadingIcon = {
-                            Icon(Icons.Default.AccountBalance, contentDescription = null, tint = SocietyBluePrimary)
-                        },
-                        singleLine = true,
+                    // Toggle Expand/Collapse Button
+                    IconButton(
+                        onClick = { isExpanded = !isExpanded },
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .testTag("contact_society_name_input"),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = inputFieldColors
-                    )
-
-                    Spacer(modifier = Modifier.height(10.dp))
-
-                    // الحقل 2: المحافظة والمدينة
-                    OutlinedTextField(
-                        value = governorateAndCity,
-                        onValueChange = { governorateAndCity = it },
-                        textStyle = inputTextStyle,
-                        label = { Text("المحافظة والمدينة / الفرع", fontSize = 12.sp, fontWeight = FontWeight.Bold) },
-                        placeholder = { Text("مثال: تعز، صنعاء، عدن، مأرب، حضرموت...", fontSize = 12.sp) },
-                        leadingIcon = {
-                            Icon(Icons.Default.LocationOn, contentDescription = null, tint = EmeraldGreen)
-                        },
-                        singleLine = true,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .testTag("contact_city_input"),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = inputFieldColors
-                    )
-
-                    Spacer(modifier = Modifier.height(10.dp))
-
-                    // الحقل 3: اسم المشرف أو مسؤول التواصل
-                    OutlinedTextField(
-                        value = contactPersonName,
-                        onValueChange = {
-                            contactPersonName = it
-                            if (errorMessage != null) errorMessage = null
-                        },
-                        textStyle = inputTextStyle,
-                        label = { Text("اسم المشرف أو مسؤول التواصل *", fontSize = 12.sp, fontWeight = FontWeight.Bold) },
-                        placeholder = { Text(":  ", fontSize = 12.sp) },
-                        leadingIcon = {
-                            Icon(Icons.Default.Person, contentDescription = null, tint = SocietyBluePrimary)
-                        },
-                        singleLine = true,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .testTag("contact_person_input"),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = inputFieldColors
-                    )
-
-                    Spacer(modifier = Modifier.height(10.dp))
-
-                    // الحقل 4: رقم الجوال أو الواتساب
-                    OutlinedTextField(
-                        value = phoneNumber,
-                        onValueChange = {
-                            phoneNumber = it
-                            if (errorMessage != null) errorMessage = null
-                        },
-                        textStyle = inputTextStyle,
-                        label = { Text("رقم الجوال أو الواتساب *", fontSize = 12.sp, fontWeight = FontWeight.Bold) },
-                        placeholder = { Text(":  أو +967...", fontSize = 12.sp) },
-                        leadingIcon = {
-                            Icon(Icons.Default.Phone, contentDescription = null, tint = GoldenAmber)
-                        },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
-                        singleLine = true,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .testTag("contact_phone_input"),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = inputFieldColors
-                    )
-
-                    Spacer(modifier = Modifier.height(10.dp))
-
-                    // الحقل 5: البريد الإلكتروني للمسؤول
-                    OutlinedTextField(
-                        value = contactEmail,
-                        onValueChange = {
-                            contactEmail = it
-                            if (errorMessage != null) errorMessage = null
-                        },
-                        textStyle = inputTextStyle,
-                        label = { Text("البريد الإلكتروني للجمعية / المسؤول", fontSize = 12.sp, fontWeight = FontWeight.Bold) },
-                        placeholder = { Text("info@quran-society.org", fontSize = 12.sp) },
-                        leadingIcon = {
-                            Icon(Icons.Default.Email, contentDescription = null, tint = SocietyBluePrimary)
-                        },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
-                        singleLine = true,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .testTag("contact_email_input"),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = inputFieldColors
-                    )
-
-                    Spacer(modifier = Modifier.height(10.dp))
-
-                    // الحقل 6: عدد الحلقات وملاحظات إضافية
-                    OutlinedTextField(
-                        value = notesOrRingsCount,
-                        onValueChange = { notesOrRingsCount = it },
-                        textStyle = inputTextStyle,
-                        label = { Text("عدد الحلقات التقريبي / ملاحظات إضافية", fontSize = 12.sp, fontWeight = FontWeight.Bold) },
-                        placeholder = { Text("مثال: 12 حلقة للبنين و 8 للبنات، 250 طالباً...", fontSize = 12.sp) },
-                        leadingIcon = {
-                            Icon(Icons.Default.Notes, contentDescription = null, tint = TextMuted)
-                        },
-                        maxLines = 3,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .testTag("contact_notes_input"),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = inputFieldColors
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    // زر إرسال الطلب عبر البريد الإلكتروني
-                    Button(
-                        onClick = { sendJoinRequestViaEmail() },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(50.dp)
-                            .testTag("contact_submit_button"),
-                        shape = RoundedCornerShape(14.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = SocietyBluePrimary
-                        ),
-                        elevation = ButtonDefaults.buttonElevation(defaultElevation = 2.dp)
+                            .testTag("contact_us_toggle_button")
+                            .size(38.dp)
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Send,
-                            contentDescription = null,
-                            tint = Color.White,
-                            modifier = Modifier.size(18.dp)
-                        )
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = "إرسال طلب الانضمام عبر البريد الإلكتروني",
-                            fontSize = 13.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.White
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(10.dp))
-
-
-
-                    Spacer(modifier = Modifier.height(10.dp))
-
-                    // زر مراسلة مباشرة عبر Gmail
-                    OutlinedButton(
-                        onClick = {
-                            val directIntent = Intent(Intent.ACTION_SENDTO).apply {
-                                data = Uri.parse("mailto:$SUPPORT_EMAIL?subject=${Uri.encode("استفسار عن انضمام جمعية للنظام")}")
-                            }
-                            try {
-                                context.startActivity(directIntent)
-                            } catch (e: Exception) {
-                                clipboardManager.setText(AnnotatedString(SUPPORT_EMAIL))
-                                Toast.makeText(context, "تم نسخ البريد: $SUPPORT_EMAIL", Toast.LENGTH_LONG).show()
-                            }
-                        },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(44.dp)
-                            .testTag("contact_direct_email_button"),
-                        shape = RoundedCornerShape(12.dp),
-                        border = BorderStroke(1.dp, SocietyBluePrimary.copy(alpha = 0.4f)),
-                        colors = ButtonDefaults.outlinedButtonColors(
-                            contentColor = SocietyBluePrimary
-                        )
-                    ) {
-                        Icon(
-                            imageVector = Icons.Outlined.Drafts,
-                            contentDescription = null,
-                            modifier = Modifier.size(18.dp)
-                        )
-                        Spacer(modifier = Modifier.width(6.dp))
-                        Text(
-                            text = "مراسلة الدعم الفني مباشرة",
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.SemiBold
+                            imageVector = if (isExpanded) Icons.Default.KeyboardArrowUp else Icons.Default.KeyboardArrowDown,
+                            contentDescription = if (isExpanded) "طي النموذج" else "فتح النموذج",
+                            tint = TextMuted
                         )
                     }
                 }
+
+                Spacer(modifier = Modifier.height(10.dp))
+
+                Text(
+                    text = "هل تشرف على جمعية أو مركز قرآني وترغب بربطه بالمنظومة وإصدار لوحة تحكم متكاملة؟ أرسل طلبك وسيتواصل معك الدعم الفني.",
+                    fontSize = 12.sp,
+                    color = TextMuted,
+                    lineHeight = 18.sp
+                )
+
+                // Placeholder for removed pill
+                Spacer(modifier = Modifier.height(10.dp))
+
+                // Expandable Form
+                AnimatedVisibility(
+                    visible = isExpanded,
+                    enter = expandVertically() + fadeIn(),
+                    exit = shrinkVertically() + fadeOut()
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = 14.dp)
+                    ) {
+                        // ... form fields ...
+                        HorizontalDivider(color = BorderSubtle, thickness = 1.dp)
+                        Spacer(modifier = Modifier.height(14.dp))
+                        
+                        // Error Message Banner (lines 323-352)
+                        if (errorMessage != null) {
+                            Surface(
+                                color = Color(0xFFFEF2F2),
+                                shape = RoundedCornerShape(10.dp),
+                                border = BorderStroke(1.dp, Color(0xFFFCA5A5)),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .testTag("contact_error_banner")
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(10.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.ErrorOutline,
+                                        contentDescription = "خطأ",
+                                        tint = StatusError,
+                                        modifier = Modifier.size(18.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(
+                                        text = errorMessage.orEmpty(),
+                                        fontSize = 12.sp,
+                                        color = StatusError,
+                                        fontWeight = FontWeight.Medium
+                                    )
+                                }
+                            }
+                            Spacer(modifier = Modifier.height(12.dp))
+                        }
+
+                        // ... rest of the form ...
+                    }
+                }
             }
+        }
+        
+        // FloatingActionButton for WhatsApp
+        FloatingActionButton(
+            onClick = {
+                val message = Uri.encode("السلام عليكم، أرغب بالتواصل مع الدعم الفني.")
+                val whatsappUrl = "https://api.whatsapp.com/send?phone=$OWNER_WHATSAPP_NUMBER&text=$message"
+                context.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(whatsappUrl)).apply { addFlags(Intent.FLAG_ACTIVITY_NEW_TASK) })
+            },
+            containerColor = Color(0xFF25D366),
+            contentColor = Color.White,
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(16.dp)
+                .testTag("support_fab")
+        ) {
+            Icon(Icons.Default.Chat, contentDescription = "تواصل عبر واتساب")
         }
     }
 

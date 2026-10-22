@@ -46,7 +46,9 @@ class FirestoreTenantRepository(private val db: FirebaseFirestore) {
                             unreadMessagesCount = (doc.getLong("unreadMessagesCount") ?: 0L).toInt(),
                             licenseNumber = doc.getString("licenseNumber") ?: "",
                             country = doc.getString("country") ?: "اليمن",
-                            governorate = doc.getString("governorate") ?: (doc.getString("city") ?: "اليمن")
+                            governorate = doc.getString("governorate") ?: (doc.getString("city") ?: "اليمن"),
+                            primaryColorHex = doc.getString("primaryColorHex") ?: "#1976D2",
+                            logoIdentifier = doc.getString("logoIdentifier") ?: "🕌"
                         )
                     } catch (e: Exception) {
                         Log.e("FirestoreTenantRepo", "Failed to parse tenant doc", e)
@@ -77,10 +79,55 @@ class FirestoreTenantRepository(private val db: FirebaseFirestore) {
             "licenseNumber" to tenant.licenseNumber,
             "country" to tenant.country,
             "governorate" to tenant.governorate,
+            "primaryColorHex" to tenant.primaryColorHex,
+            "logoIdentifier" to tenant.logoIdentifier,
             "updatedAt" to java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.US).format(java.util.Date()),
-            "syncedBy" to "adffakff@gmail.com"
+            "syncedBy" to "supervisor"
         )
-        tenantsCollection.document(tenant.id).set(map).await()
+        tenantsCollection.document(tenant.id).set(map, com.google.firebase.firestore.SetOptions.merge()).await()
+    }
+
+    /**
+     * Save full tenant preferences including notification settings and color customization into Firestore
+     */
+    suspend fun saveTenantPreferences(
+        tenant: Tenant,
+        notificationSettings: Map<String, Boolean>
+    ) {
+        val map = hashMapOf(
+            "id" to tenant.id,
+            "name" to tenant.name,
+            "shortName" to tenant.shortName,
+            "city" to tenant.city,
+            "code" to tenant.code,
+            "ringsCount" to tenant.ringsCount,
+            "studentsCount" to tenant.studentsCount,
+            "teachersCount" to tenant.teachersCount,
+            "attendanceRate" to tenant.attendanceRate,
+            "unreadMessagesCount" to tenant.unreadMessagesCount,
+            "licenseNumber" to tenant.licenseNumber,
+            "country" to tenant.country,
+            "governorate" to tenant.governorate,
+            "primaryColorHex" to tenant.primaryColorHex,
+            "logoIdentifier" to tenant.logoIdentifier,
+            "notificationSettings" to notificationSettings,
+            "updatedAt" to java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", java.util.Locale.US).format(java.util.Date()),
+            "syncedBy" to "supervisor"
+        )
+        tenantsCollection.document(tenant.id).set(map, com.google.firebase.firestore.SetOptions.merge()).await()
+    }
+
+    /**
+     * Fetch tenant preferences directly from Firestore
+     */
+    suspend fun getTenantPreferences(tenantId: String): Map<String, Any>? {
+        return try {
+            val doc = tenantsCollection.document(tenantId).get().await()
+            if (doc.exists()) doc.data else null
+        } catch (e: Exception) {
+            Log.e("FirestoreTenantRepo", "Error getting tenant preferences", e)
+            null
+        }
     }
 
     /**

@@ -24,6 +24,7 @@ fun AppSettingsScreen(
         onDarkModeChange = onDarkModeChange,
         onNavigateToConnectedDevices = onNavigateToConnectedDevices,
         onNavigateToAboutSociety = onNavigateToAboutSociety,
+        onNavigateToOwnerSettings = {},
         onBack = onBack
     )
 }

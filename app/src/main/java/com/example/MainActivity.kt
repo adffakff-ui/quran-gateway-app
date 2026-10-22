@@ -47,6 +47,7 @@ import com.example.ui.settings.AboutSocietyScreen
 import com.example.ui.security.ConnectedDevicesScreen
 import com.example.ui.owner.OwnerControlPanelScreen
 import com.example.ui.owner.OwnerFirestoreTenantsScreen
+import com.example.ui.owner.OwnerMasterSettingsScreen
 import com.example.ui.theme.*
 import com.example.data.SocietyRepository
 import kotlinx.coroutines.launch
@@ -66,6 +67,7 @@ object AppDestinations {
     const val QURAN_CHALLENGES = "quran_challenges"
     const val ACCOUNT_PROFILE = "account_profile"
     const val OWNER_CONTROL = "owner_control"
+    const val OWNER_MASTER_SETTINGS = "owner_master_settings"
     const val OWNER_FIRESTORE_TENANTS = "owner_firestore_tenants"
     const val TENANT_BACKUP_RESTORE = "tenant_backup_restore"
     const val ROLE_PERMISSIONS = "role_permissions"
@@ -367,9 +369,15 @@ fun SocietyApp(
                         },
                         onRegistrationSuccess = { tenant, profile ->
                             currentTenant = tenant
-                            activeUserRole = UserRole.SUPERVISOR
-                            navController.navigate(AppDestinations.SUPERVISOR_DASHBOARD) {
-                                popUpTo(AppDestinations.LOGIN) { inclusive = true }
+                            activeUserRole = profile.role
+                            if (profile.role == UserRole.TEACHER) {
+                                navController.navigate(AppDestinations.TEACHER_PORTAL) {
+                                    popUpTo(AppDestinations.LOGIN) { inclusive = true }
+                                }
+                            } else {
+                                navController.navigate(AppDestinations.SUPERVISOR_DASHBOARD) {
+                                    popUpTo(AppDestinations.LOGIN) { inclusive = true }
+                                }
                             }
                         }
                     )
@@ -519,7 +527,17 @@ fun SocietyApp(
                         onNavigateToTeacherPortal = { navController.navigate(AppDestinations.TEACHER_PORTAL) },
                         onNavigateToReports = { navController.navigate(AppDestinations.REPORTS) },
                         onNavigateToFirestoreTenants = { navController.navigate(AppDestinations.OWNER_FIRESTORE_TENANTS) },
-                        onNavigateToBackup = { navController.navigate(AppDestinations.TENANT_BACKUP_RESTORE) }
+                        onNavigateToBackup = { navController.navigate(AppDestinations.TENANT_BACKUP_RESTORE) },
+                        onNavigateToOwnerMasterSettings = { navController.navigate(AppDestinations.OWNER_MASTER_SETTINGS) }
+                    )
+                }
+
+                // شاشة إعدادات المالك المطلقة والصلاحيات
+                composable(AppDestinations.OWNER_MASTER_SETTINGS) {
+                    OwnerMasterSettingsScreen(
+                        currentTenant = currentTenant,
+                        userRole = activeUserRole,
+                        onNavigateBack = { navController.popBackStack() }
                     )
                 }
 

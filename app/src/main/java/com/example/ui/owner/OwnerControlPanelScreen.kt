@@ -54,7 +54,8 @@ fun OwnerControlPanelScreen(
     onNavigateToTeacherPortal: () -> Unit = {},
     onNavigateToReports: () -> Unit = {},
     onNavigateToFirestoreTenants: () -> Unit = {},
-    onNavigateToBackup: () -> Unit = {}
+    onNavigateToBackup: () -> Unit = {},
+    onNavigateToOwnerMasterSettings: () -> Unit = {}
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
