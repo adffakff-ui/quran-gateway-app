@@ -1013,7 +1013,7 @@ fun SettingsScreen(
                                     )
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Text(
-                                        text = "إرسال إشعار تجريبي فوري",
+                                        text = "اختبار وصول التنبيهات للنظام",
                                         fontWeight = FontWeight.Bold,
                                         fontSize = 12.sp,
                                         color = activeColor

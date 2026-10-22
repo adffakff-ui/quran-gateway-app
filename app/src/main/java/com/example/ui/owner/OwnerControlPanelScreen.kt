@@ -2243,7 +2243,125 @@ fun OwnerControlPanelScreen(
                         }
                     }
                 }
+                8 -> {
+                    // ==========================================
+                    // تبويب 8: بوابة المستخدمين المسجلين Zero-Trust
+                    // ==========================================
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(12.dp),
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        item {
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(12.dp),
+                                colors = CardDefaults.cardColors(containerColor = Color(0xFF0F172A)),
+                                border = BorderStroke(1.dp, GoldenAmber.copy(alpha = 0.5f))
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(16.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Icon(Icons.Default.Fingerprint, contentDescription = null, tint = GoldenAmber, modifier = Modifier.size(32.dp))
+                                    Spacer(modifier = Modifier.width(12.dp))
+                                    Column {
+                                        Text("إدارة بوابة Zero-Trust للمستخدمين", fontWeight = FontWeight.Bold, color = Color.White, fontSize = 15.sp)
+                                        Text("عرض وحذف وتعديل صلاحيات جميع المستخدمين الموثقين في النظام", fontSize = 11.sp, color = Color(0xFF94A3B8))
+                                    }
+                                }
+                            }
+                        }
+
+                        items(allUsers) { user ->
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(12.dp),
+                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                                border = BorderStroke(1.dp, if (user.role == UserRole.OWNER) GoldenAmber else BorderSubtle)
+                            ) {
+                                Column(modifier = Modifier.padding(12.dp)) {
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        verticalAlignment = Alignment.CenterVertically
+                                    ) {
+                                        Row(verticalAlignment = Alignment.CenterVertically) {
+                                            Box(
+                                                modifier = Modifier
+                                                    .size(40.dp)
+                                                    .clip(CircleShape)
+                                                    .background(if (user.role == UserRole.OWNER) GoldenAmber.copy(alpha = 0.2f) else SocietyBlueLight),
+                                                contentAlignment = Alignment.Center
+                                            ) {
+                                                Icon(
+                                                    imageVector = if (user.role == UserRole.OWNER) Icons.Default.Shield else Icons.Default.Person,
+                                                    contentDescription = null,
+                                                    tint = if (user.role == UserRole.OWNER) GoldenAmber else SocietyBluePrimary
+                                                )
+                                            }
+                                            Spacer(modifier = Modifier.width(12.dp))
+                                            Column {
+                                                Text(user.name, fontWeight = FontWeight.Bold, fontSize = 14.sp)
+                                                Text(user.email, fontSize = 11.sp, color = TextMuted)
+                                                Text(user.phone, fontSize = 11.sp, color = TextMuted)
+                                            }
+                                        }
+
+                                        Surface(
+                                            shape = RoundedCornerShape(6.dp),
+                                            color = when (user.role) {
+                                                UserRole.OWNER -> GoldenAmber.copy(alpha = 0.2f)
+                                                UserRole.SUPERVISOR -> SocietyBluePrimary.copy(alpha = 0.15f)
+                                                UserRole.TEACHER -> StatusSuccess.copy(alpha = 0.15f)
+                                                UserRole.GUARDIAN -> TextMuted.copy(alpha = 0.15f)
+                                            }
+                                        ) {
+                                            Text(
+                                                text = user.role.label,
+                                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
+                                                fontSize = 10.sp,
+                                                fontWeight = FontWeight.Bold,
+                                                color = when (user.role) {
+                                                    UserRole.OWNER -> GoldenAmber
+                                                    UserRole.SUPERVISOR -> SocietyBluePrimary
+                                                    UserRole.TEACHER -> StatusSuccess
+                                                    UserRole.GUARDIAN -> TextDark
+                                                }
+                                            )
+                                        }
+                                    }
+
+                                    if (user.role != UserRole.OWNER) {
+                                        Spacer(modifier = Modifier.height(12.dp))
+                                        HorizontalDivider(color = BorderSubtle.copy(alpha = 0.5f))
+                                        Spacer(modifier = Modifier.height(8.dp))
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.End,
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            TextButton(
+                                                onClick = {
+                                                    SocietyRepository.removeUser(user.id)
+                                                    snackbarMessage = "تم حذف وتصفير صلاحيات المستخدم ${user.name} بنجاح"
+                                                },
+                                                colors = ButtonDefaults.textButtonColors(contentColor = StatusError)
+                                            ) {
+                                                Icon(Icons.Default.DeleteForever, contentDescription = null, modifier = Modifier.size(16.dp))
+                                                Spacer(modifier = Modifier.width(4.dp))
+                                                Text("سحب الصلاحيات والحذف", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
+
         }
     }
 

@@ -482,70 +482,8 @@ fun SupervisorDashboardScreen(
                         }
                     }
 
-                    // ==========================================
-                    // بطاقة وضع النظام: تصفير البيانات والعمل الفعلي
-                    // ==========================================
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .testTag("production_mode_banner"),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = CardDefaults.cardColors(
-                            containerColor = if (SocietyRepository.isProductionMode) Color(0xFFF0FDF4) else Color(0xFFEFF6FF)
-                        ),
-                        border = BorderStroke(
-                            1.dp,
-                            if (SocietyRepository.isProductionMode) Color(0xFFBBF7D0) else Color(0xFFBFDBFE)
-                        )
-                    ) {
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(12.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
-                                Icon(
-                                    imageVector = if (SocietyRepository.isProductionMode) Icons.Default.CheckCircle else Icons.Default.Handyman,
-                                    contentDescription = null,
-                                    tint = if (SocietyRepository.isProductionMode) EmeraldDark else SocietyBluePrimary,
-                                    modifier = Modifier.size(22.dp)
-                                )
-                                Spacer(modifier = Modifier.width(8.dp))
-                                Column {
-                                    Text(
-                                        text = if (SocietyRepository.isProductionMode) "🟢 النظام في وضع التشغيل الفعلي (Production Mode)" else "⚙️ النظام في وضع المعاينة التجريبية",
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 12.sp,
-                                        color = if (SocietyRepository.isProductionMode) Color(0xFF166534) else SocietyBlueDark
-                                    )
-                                    Text(
-                                        text = if (SocietyRepository.isProductionMode) "تم تصفير البيانات التجريبية بنجاح • جاهز تماماً للعمل الميداني والربط المباشر" else "يمكنك تصفير جميع البيانات التجريبية وبدء العمل على النظام الفعلي فوراً",
-                                        fontSize = 10.sp,
-                                        color = TextMuted
-                                    )
-                                }
-                            }
+                    // Production Mode banner hidden for cleaner UI as requested
 
-                            Button(
-                                onClick = { showResetDataConfirmDialog = true },
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = if (SocietyRepository.isProductionMode) Color(0xFF059669) else Color(0xFFDC2626)
-                                ),
-                                shape = RoundedCornerShape(8.dp),
-                                contentPadding = PaddingValues(horizontal = 10.dp, vertical = 6.dp)
-                            ) {
-                                Icon(imageVector = Icons.Default.CleaningServices, contentDescription = null, modifier = Modifier.size(14.dp))
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Text(
-                                    text = if (SocietyRepository.isProductionMode) "تصفير مجدداً" else "تصفير وبدء العمل الفعلي",
-                                    fontSize = 11.sp,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            }
-                        }
-                    }
 
                     // ==========================================
                     // صف KPI أعلى (4 بطاقات)

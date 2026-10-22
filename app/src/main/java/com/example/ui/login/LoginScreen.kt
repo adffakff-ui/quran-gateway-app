@@ -385,7 +385,7 @@ fun LoginScreen(
                                     } else if (password.isBlank()) {
                                         errorMessage = "يرجى إدخال كلمة المرور."
                                     } else if (trimmed == "demo" || trimmed == "test" || trimmed == "supervisor" || trimmed == "123456") {
-                                        errorMessage = "تم تصفير وإلغاء كافة الحسابات والأكواد التجريبية نهائياً. يرجى إدخال بياناتك المعتمدة أو رمز التحقق (OTP)."
+                                        errorMessage = "لم يتم العثور على الحساب الموثق. يرجى إدخال بياناتك المعتمدة أو رمز التحقق (OTP)."
                                     } else {
                                         errorMessage = null
                                         startLoginProcess(
@@ -429,7 +429,7 @@ fun LoginScreen(
                                     } else if (password.isBlank()) {
                                         errorMessage = "يرجى إدخال كلمة المرور."
                                     } else if (trimmed == "demo" || trimmed == "test" || trimmed == "supervisor" || trimmed == "123456") {
-                                        errorMessage = "تم تصفير وإلغاء كافة الحسابات والأكواد التجريبية نهائياً. يرجى إدخال بياناتك المعتمدة أو رمز التحقق (OTP)."
+                                        errorMessage = "لم يتم العثور على الحساب الموثق. يرجى إدخال بياناتك المعتمدة أو رمز التحقق (OTP)."
                                     } else {
                                         errorMessage = null
                                         startLoginProcess(
@@ -1188,19 +1188,7 @@ fun LoginScreen(
             )
         }
 
-        // ==========================================
-        // Modal: بوابة الدخول بالبصمة لجميع المستخدمين المسجلين (Zero-Trust)
-        // ==========================================
-        if (showRegisteredUsersBiometricDialog) {
-            RegisteredUsersBiometricDialog(
-                currentTenant = currentTenant,
-                onUserAuthenticated = { tenant, role ->
-                    showRegisteredUsersBiometricDialog = false
-                    onBiometricQuickLoginSuccess(tenant, role)
-                },
-                onDismiss = { showRegisteredUsersBiometricDialog = false }
-            )
-        }
+
 
         // ==========================================
         // Modal: تنبيه حظر العمليات المجهولة ومسح البيانات فوراً
