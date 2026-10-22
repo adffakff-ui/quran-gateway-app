@@ -40,6 +40,7 @@ import com.example.ui.dashboard.ActiveVsPendingRegistrationsDashboard
 import com.example.ui.security.BiometricHelper
 import com.example.ui.theme.*
 import kotlinx.coroutines.launch
+import com.example.data.FirestoreTenantRepository
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -62,6 +63,7 @@ fun OwnerControlPanelScreen(
 ) {
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
+    val firestoreRepo = remember { FirestoreTenantRepository(context) }
 
     // Handle back button
     BackHandler {
@@ -488,7 +490,7 @@ fun OwnerControlPanelScreen(
                                         Text("إدارة قاعدة بيانات Cloud Firestore السحابية مباشرة ومزامنة الجمعيات", fontSize = 10.sp, color = Color(0xFF94A3B8))
                                     }
                                 }
-                                Icon(Icons.Default.ArrowForward, contentDescription = null, tint = GoldenAmber)
+                                Icon(Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null, tint = GoldenAmber)
                             }
                         }
 
@@ -606,7 +608,7 @@ fun OwnerControlPanelScreen(
                                                 shape = RoundedCornerShape(8.dp),
                                                 colors = ButtonDefaults.buttonColors(containerColor = SocietyBluePrimary)
                                             ) {
-                                                Icon(Icons.Default.Login, contentDescription = null, modifier = Modifier.size(16.dp))
+                                                Icon(Icons.AutoMirrored.Filled.Login, contentDescription = null, modifier = Modifier.size(16.dp))
                                                 Spacer(modifier = Modifier.width(4.dp))
                                                 Text("دخول كمالك للجمعية", fontSize = 12.sp)
                                             }
@@ -616,6 +618,13 @@ fun OwnerControlPanelScreen(
                                                     onClick = {
                                                         val updated = tenant.copy(attendanceRate = (85..99).random())
                                                         SocietyRepository.updateTenant(updated)
+                                                        coroutineScope.launch {
+                                                            try {
+                                                                firestoreRepo.saveTenant(updated)
+                                                            } catch (e: Exception) {
+                                                                snackbarMessage = "خطأ في المزامنة السحابية: ${e.message}"
+                                                            }
+                                                        }
                                                         snackbarMessage = "تم تحديث بيانات جمعية ${tenant.shortName}"
                                                     },
                                                     shape = RoundedCornerShape(8.dp)
@@ -626,6 +635,13 @@ fun OwnerControlPanelScreen(
                                                 IconButton(
                                                     onClick = {
                                                         SocietyRepository.removeTenant(tenant.id)
+                                                        coroutineScope.launch {
+                                                            try {
+                                                                firestoreRepo.deleteTenant(tenant.id)
+                                                            } catch (e: Exception) {
+                                                                snackbarMessage = "خطأ في الحذف السحابي: ${e.message}"
+                                                            }
+                                                        }
                                                         snackbarMessage = "تم حذف الجمعية بنجاح"
                                                     }
                                                 ) {
@@ -2407,7 +2423,7 @@ fun OwnerControlPanelScreen(
                     Button(
                         onClick = {
                             if (name.isNotBlank()) {
-                                SocietyRepository.approveNewSociety(
+                                val newTenant = SocietyRepository.approveNewSociety(
                                     name = name,
                                     governorate = city,
                                     supervisorName = "المشرف المعتمد",
@@ -2415,6 +2431,13 @@ fun OwnerControlPanelScreen(
                                     email = "info@society.ye",
                                     notes = rings
                                 )
+                                coroutineScope.launch {
+                                    try {
+                                        firestoreRepo.saveTenant(newTenant)
+                                    } catch (e: Exception) {
+                                        snackbarMessage = "خطأ في المزامنة السحابية: ${e.message}"
+                                    }
+                                }
                                 showAddTenantDialog = false
                                 snackbarMessage = "تم إضافة وتفعيل جمعية $name بنجاح!"
                             }

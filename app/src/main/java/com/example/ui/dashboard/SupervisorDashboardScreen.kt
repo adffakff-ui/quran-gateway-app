@@ -644,11 +644,31 @@ fun SupervisorDashboardScreen(
                         horizontalArrangement = Arrangement.spacedBy(14.dp)
                     ) {
                         // مخطط تقدم الحفظ وتحليل تصنيف السور (مكية ومدنية)
-                        QuranMemorizationChartSection(
-                            modifier = Modifier
-                                .weight(1.3f)
-                                .testTag("progress_chart_card")
-                        )
+                        Column(modifier = Modifier.weight(1.3f)) {
+                            QuranMemorizationChartSection(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .testTag("progress_chart_card")
+                            )
+
+                            // زر تصدير التقرير إلى PDF أسفل المخطط مباشرة
+                            OutlinedButton(
+                                onClick = {
+                                    Toast.makeText(context, "جاري تحضير التقرير وتصديره بصيغة PDF...", Toast.LENGTH_LONG).show()
+                                },
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(top = 8.dp)
+                                    .testTag("export_pdf_button"),
+                                shape = RoundedCornerShape(10.dp),
+                                border = BorderStroke(1.dp, SocietyBluePrimary),
+                                colors = ButtonDefaults.outlinedButtonColors(contentColor = SocietyBluePrimary)
+                            ) {
+                                Icon(imageVector = Icons.Default.PictureAsPdf, contentDescription = null, modifier = Modifier.size(18.dp))
+                                Spacer(modifier = Modifier.width(8.dp))
+                                Text("تصدير التقرير إلى PDF", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                            }
+                        }
 
                         // جدول سريع / رؤية سريعة (يسار-في-المحتوى): آخر 5 نشاطات
                         Card(

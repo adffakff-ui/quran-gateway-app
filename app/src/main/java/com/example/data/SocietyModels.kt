@@ -205,7 +205,23 @@ object SocietyRepository {
     fun getInitialEligibleStudents(): List<EligibleCertificateStudent> = emptyList()
     fun getInitialExportLogs(): List<ExportLogRecord> = emptyList()
 
-    fun approveNewSociety(name: String, governorate: String, supervisorName: String, phone: String, email: String, notes: String): Tenant = defaultRealTenant
+    fun approveNewSociety(name: String, governorate: String, supervisorName: String, phone: String, email: String, notes: String): Tenant {
+        val newTenant = Tenant(
+            id = "t_${System.currentTimeMillis()}",
+            name = name,
+            shortName = name.take(20),
+            city = governorate,
+            code = "QCA-${(100..999).random()}",
+            ringsCount = notes.toIntOrNull() ?: 0,
+            studentsCount = 0,
+            teachersCount = 0,
+            attendanceRate = 100,
+            unreadMessagesCount = 0,
+            governorate = governorate
+        )
+        addTenant(newTenant)
+        return newTenant
+    }
     fun isOwner(input: String): Boolean = false
     fun removeTenant(id: String) {
         tenants = tenants.filterNot { it.id == id }

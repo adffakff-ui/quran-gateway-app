@@ -23,6 +23,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import android.content.Context
+import android.content.Intent
+import android.util.Log
+import com.google.firebase.FirebaseApp
+import com.google.firebase.appcheck.FirebaseAppCheck
+import com.google.firebase.appcheck.debug.DebugAppCheckProviderFactory
+import com.google.firebase.appcheck.playintegrity.PlayIntegrityAppCheckProviderFactory
 import com.example.data.*
 import com.example.ui.attendance.AttendanceScreen
 import com.example.ui.circles.CircleDetailScreen
@@ -41,7 +48,6 @@ import com.example.ui.challenges.QuranChallengesScreen
 import com.example.ui.profile.AccountProfileAndPermissionsScreen
 import com.example.ui.profile.RolePermissionManagementScreen
 import com.example.ui.backup.TenantBackupRestoreScreen
-import com.example.ui.settings.AppSettingsScreen
 import com.example.ui.settings.SettingsScreen
 import com.example.ui.settings.AboutSocietyScreen
 import com.example.ui.security.ConnectedDevicesScreen
@@ -80,6 +86,10 @@ object AppDestinations {
 class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        
+        // 1. Configure App Check with launch intent before any UI or Firebase operations
+        configureAppCheck(this, intent)
+
         enableEdgeToEdge()
         setContent {
             var darkModePref by remember { mutableStateOf("system") } // "system", "dark", "light"
@@ -587,4 +597,45 @@ fun SocietyApp(
         }
     }
 }
+}
+
+/**
+ * AUTHORITATIVE: App Check configuration for AI Studio Android.
+ * Passing [intent] is MANDATORY to supply FIREBASE_APPCHECK_DEBUG_TOKEN in debug/emulator environments.
+ */
+private const val TAG = "AppCheckInit"
+private const val DEBUG_TOKEN_EXTRA = "FIREBASE_APPCHECK_DEBUG_TOKEN"
+private const val DEBUG_STORE_PREFIX = "com.google.firebase.appcheck.debug.store."
+private const val DEBUG_SECRET_KEY = "com.google.firebase.appcheck.debug.DEBUG_SECRET"
+
+fun configureAppCheck(context: Context, intent: Intent?) {
+    try {
+        if (FirebaseApp.getApps(context).isEmpty()) {
+            FirebaseApp.initializeApp(context)
+        }
+
+        if (BuildConfig.DEBUG) {
+            val debugToken = intent?.getStringExtra(DEBUG_TOKEN_EXTRA)
+            if (!debugToken.isNullOrEmpty()) {
+                val persistenceKey = FirebaseApp.getInstance().persistenceKey
+                val prefs = context.getSharedPreferences(
+                    "$DEBUG_STORE_PREFIX$persistenceKey",
+                    Context.MODE_PRIVATE
+                )
+                // Use commit() for synchronous persistence before provider initialization
+                prefs.edit().putString(DEBUG_SECRET_KEY, debugToken).commit()
+                Log.d(TAG, "App Check debug secret configured.")
+            }
+            FirebaseAppCheck.getInstance().installAppCheckProviderFactory(
+                DebugAppCheckProviderFactory.getInstance()
+            )
+        } else {
+            // Production: use Play Integrity for Android
+            FirebaseAppCheck.getInstance().installAppCheckProviderFactory(
+                PlayIntegrityAppCheckProviderFactory.getInstance()
+            )
+        }
+    } catch (e: Exception) {
+        Log.e(TAG, "Failed to initialize Firebase App Check", e)
+    }
 }
