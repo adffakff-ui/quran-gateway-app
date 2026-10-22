@@ -553,7 +553,7 @@ fun HifzPlannerScreen(
                         OutlinedTextField(
                             value = newTargetSurah,
                             onValueChange = { newTargetSurah = it },
-                            label = { Text("السورة المستهدفة (مثال: سورة البقرة)") },
+                            label = { Text("السورة المستهدفة") },
                             modifier = Modifier.fillMaxWidth(),
                             singleLine = true,
                             shape = RoundedCornerShape(10.dp)
@@ -561,7 +561,7 @@ fun HifzPlannerScreen(
                         OutlinedTextField(
                             value = newTargetAyahs,
                             onValueChange = { newTargetAyahs = it },
-                            label = { Text("نطاق الآيات (مثال: الآيات 1 - 50)") },
+                            label = { Text("نطاق الآيات") },
                             modifier = Modifier.fillMaxWidth(),
                             singleLine = true,
                             shape = RoundedCornerShape(10.dp)

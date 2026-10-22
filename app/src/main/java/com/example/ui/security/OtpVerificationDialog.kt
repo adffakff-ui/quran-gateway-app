@@ -772,7 +772,7 @@ fun OtpVerificationDialog(
                                             }
                                         }
                                     },
-                                    placeholder = { Text("مثال: 926313") },
+                                    placeholder = { Text("أدخل رمز التحقق (6 أرقام)") },
                                     leadingIcon = {
                                         Icon(
                                             imageVector = Icons.Default.Pin,

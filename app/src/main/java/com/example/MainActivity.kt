@@ -317,28 +317,22 @@ fun SocietyApp(
                                     popUpTo(AppDestinations.LOGIN) { inclusive = true }
                                 }
                             } else {
-                                if (role == UserRole.OWNER) {
-                                    navController.navigate(AppDestinations.OWNER_CONTROL) {
-                                        popUpTo(AppDestinations.LOGIN) { inclusive = true }
-                                    }
-                                } else {
-                                    navController.navigate(AppDestinations.SUPERVISOR_DASHBOARD) {
-                                        popUpTo(AppDestinations.LOGIN) { inclusive = true }
-                                    }
+                                when (role) {
+                                    UserRole.OWNER -> navController.navigate(AppDestinations.OWNER_CONTROL) { popUpTo(AppDestinations.LOGIN) { inclusive = true } }
+                                    UserRole.TEACHER -> navController.navigate(AppDestinations.TEACHER_PORTAL) { popUpTo(AppDestinations.LOGIN) { inclusive = true } }
+                                    UserRole.GUARDIAN -> navController.navigate(AppDestinations.PARENT_PORTAL) { popUpTo(AppDestinations.LOGIN) { inclusive = true } }
+                                    else -> navController.navigate(AppDestinations.SUPERVISOR_DASHBOARD) { popUpTo(AppDestinations.LOGIN) { inclusive = true } }
                                 }
                             }
                         },
                         onBiometricQuickLoginSuccess = { tenant, role ->
                             currentTenant = tenant
                             activeUserRole = role
-                            if (role == UserRole.OWNER) {
-                                navController.navigate(AppDestinations.OWNER_CONTROL) {
-                                    popUpTo(AppDestinations.LOGIN) { inclusive = true }
-                                }
-                            } else {
-                                navController.navigate(AppDestinations.SUPERVISOR_DASHBOARD) {
-                                    popUpTo(AppDestinations.LOGIN) { inclusive = true }
-                                }
+                            when (role) {
+                                UserRole.OWNER -> navController.navigate(AppDestinations.OWNER_CONTROL) { popUpTo(AppDestinations.LOGIN) { inclusive = true } }
+                                UserRole.TEACHER -> navController.navigate(AppDestinations.TEACHER_PORTAL) { popUpTo(AppDestinations.LOGIN) { inclusive = true } }
+                                UserRole.GUARDIAN -> navController.navigate(AppDestinations.PARENT_PORTAL) { popUpTo(AppDestinations.LOGIN) { inclusive = true } }
+                                else -> navController.navigate(AppDestinations.SUPERVISOR_DASHBOARD) { popUpTo(AppDestinations.LOGIN) { inclusive = true } }
                             }
                         },
                         onNavigateToSupervisorRegistration = {
@@ -349,11 +343,13 @@ fun SocietyApp(
 
                 composable(AppDestinations.BIOMETRIC_GATE) {
                     BiometricOptionalLoginScreen(
+                        userRole = activeUserRole,
                         onSuccess = { 
-                            if (activeUserRole == UserRole.OWNER) {
-                                navController.navigate(AppDestinations.OWNER_CONTROL) { popUpTo(AppDestinations.BIOMETRIC_GATE) { inclusive = true } }
-                            } else {
-                                navController.navigate(AppDestinations.SUPERVISOR_DASHBOARD) { popUpTo(AppDestinations.BIOMETRIC_GATE) { inclusive = true } }
+                            when (activeUserRole) {
+                                UserRole.OWNER -> navController.navigate(AppDestinations.OWNER_CONTROL) { popUpTo(AppDestinations.BIOMETRIC_GATE) { inclusive = true } }
+                                UserRole.TEACHER -> navController.navigate(AppDestinations.TEACHER_PORTAL) { popUpTo(AppDestinations.BIOMETRIC_GATE) { inclusive = true } }
+                                UserRole.GUARDIAN -> navController.navigate(AppDestinations.PARENT_PORTAL) { popUpTo(AppDestinations.BIOMETRIC_GATE) { inclusive = true } }
+                                else -> navController.navigate(AppDestinations.SUPERVISOR_DASHBOARD) { popUpTo(AppDestinations.BIOMETRIC_GATE) { inclusive = true } }
                             }
                         },
                         onError = { navController.navigate(AppDestinations.LOGIN) { popUpTo(AppDestinations.BIOMETRIC_GATE) { inclusive = true } } }
@@ -568,6 +564,7 @@ fun SocietyApp(
                         onDarkModeChange = onDarkModeChange,
                         onNavigateToConnectedDevices = { navController.navigate(AppDestinations.CONNECTED_DEVICES) },
                         onNavigateToAboutSociety = { navController.navigate(AppDestinations.ABOUT_SOCIETY) },
+                        onNavigateToOwnerSettings = { navController.navigate(AppDestinations.OWNER_MASTER_SETTINGS) },
                         onBack = { navController.popBackStack() }
                     )
                 }

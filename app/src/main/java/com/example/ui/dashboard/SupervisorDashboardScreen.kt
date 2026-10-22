@@ -35,6 +35,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import android.content.Intent
+import android.net.Uri
 import android.widget.Toast
 import androidx.compose.ui.platform.LocalContext
 import com.example.R
@@ -818,6 +820,11 @@ fun SupervisorDashboardScreen(
                         isDarkMode = false
                     )
 
+                    // ==========================================
+                    // ميزة جديدة: المتابعة اليومية السريعة للتسميع القرآني وتكريم الطلاب
+                    // ==========================================
+                    DailyHifzQuickTrackerSection()
+
                     // بنر ترويجي سريع لربط شاشة إدارة المعلمين
                     Card(
                         modifier = Modifier
@@ -944,7 +951,7 @@ fun SupervisorDashboardScreen(
                         OutlinedTextField(
                             value = ringName,
                             onValueChange = { ringName = it },
-                            label = { Text("اسم الحلقة (مثال: حلقة الإمام الشاطبي)") },
+                            label = { Text("اسم الحلقة") },
                             modifier = Modifier.fillMaxWidth(),
                             singleLine = true
                         )
@@ -1349,3 +1356,272 @@ fun MonthlyProgressChart() {
         }
     }
 }
+
+/**
+ * ميزة جديدة: قسم المتابعة القرآنية اليومية السريعة والتقييم بالنجوم
+ */
+@Composable
+fun DailyHifzQuickTrackerSection() {
+    val context = LocalContext.current
+    val records = SocietyRepository.allDailyHifzRecords
+
+    var showAddHifzDialog by remember { mutableStateOf(false) }
+    var studentNameInput by remember { mutableStateOf("") }
+    var ringNameInput by remember { mutableStateOf("حلقة الإمام عاصم") }
+    var surahNameInput by remember { mutableStateOf("سورة البقرة") }
+    var fromAyahInput by remember { mutableStateOf("1") }
+    var toAyahInput by remember { mutableStateOf("25") }
+    var tajweedRatingInput by remember { mutableIntStateOf(5) }
+
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .testTag("daily_hifz_quick_tracker_card"),
+        shape = RoundedCornerShape(18.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White),
+        border = BorderStroke(1.dp, BorderSubtle),
+        elevation = CardDefaults.cardElevation(2.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Box(
+                        modifier = Modifier
+                            .size(36.dp)
+                            .clip(CircleShape)
+                            .background(EmeraldLight),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.MenuBook,
+                            contentDescription = null,
+                            tint = EmeraldDark,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(10.dp))
+                    Column {
+                        Text(
+                            text = "📖 المتابعة اليومية السريعة للتسميع القرآني",
+                            fontSize = 14.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = TextDark
+                        )
+                        Text(
+                            text = "تسجيل فوري للحفظ • تقييم التجويد • مباركة واتساب لأولياء الأمور",
+                            fontSize = 10.sp,
+                            color = TextMuted
+                        )
+                    }
+                }
+
+                Button(
+                    onClick = { showAddHifzDialog = true },
+                    shape = RoundedCornerShape(10.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = EmeraldDark),
+                    contentPadding = PaddingValues(horizontal = 12.dp, vertical = 6.dp)
+                ) {
+                    Icon(Icons.Default.Add, contentDescription = null, modifier = Modifier.size(14.dp))
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text("تسجيل تسميع", fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                }
+            }
+
+            HorizontalDivider(color = BorderSubtle)
+
+            // بطاقات الطلاب الذين سمعوا اليوم
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                records.take(4).forEach { record ->
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = CardDefaults.cardColors(containerColor = Color(0xFFF8FAFC)),
+                        border = BorderStroke(1.dp, BorderSubtle)
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(12.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Text(
+                                        text = record.studentName,
+                                        fontSize = 13.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = TextDark
+                                    )
+                                    Spacer(modifier = Modifier.width(6.dp))
+                                    Surface(
+                                        shape = RoundedCornerShape(6.dp),
+                                        color = EmeraldLight
+                                    ) {
+                                        Text(
+                                            text = record.ringName,
+                                            fontSize = 10.sp,
+                                            color = EmeraldDark,
+                                            fontWeight = FontWeight.SemiBold,
+                                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp)
+                                        )
+                                    }
+                                }
+                                Spacer(modifier = Modifier.height(4.dp))
+                                Text(
+                                    text = "${record.surahName} (الآيات ${record.ayahFrom} - ${record.ayahTo})",
+                                    fontSize = 11.sp,
+                                    color = SocietyBluePrimary,
+                                    fontWeight = FontWeight.SemiBold
+                                )
+                                Text(
+                                    text = record.notes,
+                                    fontSize = 10.sp,
+                                    color = TextMuted,
+                                    maxLines = 1
+                                )
+                            }
+
+                            Column(horizontalAlignment = Alignment.End) {
+                                Row {
+                                    repeat(record.tajweedRating) {
+                                        Text("⭐", fontSize = 12.sp)
+                                    }
+                                }
+                                Spacer(modifier = Modifier.height(4.dp))
+                                OutlinedButton(
+                                    onClick = {
+                                        val celebrationMsg = "السلام عليكم ورحمة الله،\n" +
+                                                "نزف إليكم بشرى تميز ابنكم البار (${record.studentName}) في حلقة (${record.ringName}) اليوم:\n" +
+                                                "المقرر المنجز: ${record.surahName} من آية ${record.ayahFrom} إلى ${record.ayahTo}\n" +
+                                                "درجة التجويد والإتقان: ${record.tajweedRating}/5 نجوم ⭐\n" +
+                                                "ملاحظة المعلم: ${record.notes}\n" +
+                                                "هنيئاً لكم تاج الوقار، ونسأل الله أن يجعله من أهل القرآن."
+                                        try {
+                                            val intent = Intent(Intent.ACTION_VIEW).apply {
+                                                data = Uri.parse("https://api.whatsapp.com/send?text=${Uri.encode(celebrationMsg)}")
+                                            }
+                                            context.startActivity(intent)
+                                        } catch (e: Exception) {
+                                            Toast.makeText(context, "تعذر فتح واتساب للمباركة", Toast.LENGTH_SHORT).show()
+                                        }
+                                    },
+                                    shape = RoundedCornerShape(8.dp),
+                                    contentPadding = PaddingValues(horizontal = 8.dp, vertical = 3.dp)
+                                ) {
+                                    Icon(Icons.Default.Send, contentDescription = null, modifier = Modifier.size(12.dp), tint = EmeraldDark)
+                                    Spacer(modifier = Modifier.width(4.dp))
+                                    Text("مباركة واتساب", fontSize = 10.sp, color = EmeraldDark)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // نافذة تسجيل تسميع جديد
+    if (showAddHifzDialog) {
+        AlertDialog(
+            onDismissRequest = { showAddHifzDialog = false },
+            title = { Text("تسجيل تسميع وإنجاز قرآني جديد", fontWeight = FontWeight.Bold) },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                    OutlinedTextField(
+                        value = studentNameInput,
+                        onValueChange = { studentNameInput = it },
+                        label = { Text("اسم الطالب") },
+                        placeholder = { Text("أدخل اسم الطالب") },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        shape = RoundedCornerShape(10.dp)
+                    )
+                    OutlinedTextField(
+                        value = surahNameInput,
+                        onValueChange = { surahNameInput = it },
+                        label = { Text("السورة الكريمة") },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        shape = RoundedCornerShape(10.dp)
+                    )
+                    Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        OutlinedTextField(
+                            value = fromAyahInput,
+                            onValueChange = { fromAyahInput = it },
+                            label = { Text("من آية") },
+                            modifier = Modifier.weight(1f),
+                            singleLine = true,
+                            shape = RoundedCornerShape(10.dp)
+                        )
+                        OutlinedTextField(
+                            value = toAyahInput,
+                            onValueChange = { toAyahInput = it },
+                            label = { Text("إلى آية") },
+                            modifier = Modifier.weight(1f),
+                            singleLine = true,
+                            shape = RoundedCornerShape(10.dp)
+                        )
+                    }
+                    Text("تقييم الإتقان والتجويد:", fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        (1..5).forEach { star ->
+                            IconButton(onClick = { tajweedRatingInput = star }) {
+                                Text(
+                                    text = if (star <= tajweedRatingInput) "⭐" else "☆",
+                                    fontSize = 22.sp
+                                )
+                            }
+                        }
+                    }
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        if (studentNameInput.isNotBlank()) {
+                            val newRec = DailyHifzRecord(
+                                id = "hifz_${System.currentTimeMillis()}",
+                                studentName = studentNameInput.trim(),
+                                ringName = ringNameInput,
+                                surahName = surahNameInput.trim(),
+                                ayahFrom = fromAyahInput.toIntOrNull() ?: 1,
+                                ayahTo = toAyahInput.toIntOrNull() ?: 20,
+                                tajweedRating = tajweedRatingInput,
+                                date = "اليوم",
+                                notes = "إتقان ممتاز لمقرر التسميع",
+                                parentNotifiedViaWhatsApp = false
+                            )
+                            SocietyRepository.addDailyHifzRecord(newRec)
+                            showAddHifzDialog = false
+                            studentNameInput = ""
+                            Toast.makeText(context, "تم تسجيل التسميع بنجاح في سجل الحلقة!", Toast.LENGTH_SHORT).show()
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = EmeraldDark)
+                ) {
+                    Text("حفظ التسميع")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showAddHifzDialog = false }) {
+                    Text("إلغاء")
+                }
+            }
+        )
+    }
+}
+

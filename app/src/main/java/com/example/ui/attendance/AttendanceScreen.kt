@@ -351,7 +351,7 @@ fun AttendanceScreen(
                         OutlinedTextField(
                             value = studentNoteText,
                             onValueChange = { studentNoteText = it },
-                            placeholder = { Text("مثال: تأخر لعذر مواصلات / أتقن التسميع اليوم") },
+                            placeholder = { Text("اكتب ملاحظة الحضور أو التسميع") },
                             modifier = Modifier.fillMaxWidth(),
                             minLines = 3,
                             shape = RoundedCornerShape(10.dp)
@@ -392,7 +392,7 @@ fun AttendanceScreen(
                         OutlinedTextField(
                             value = groupNoteText,
                             onValueChange = { groupNoteText = it },
-                            placeholder = { Text("اكتب الملاحظة الجماعية (مثال: تم عقد مراجعة مكثفة لجزء عمّ)") },
+                            placeholder = { Text("اكتب الملاحظة الجماعية للحلقة") },
                             modifier = Modifier.fillMaxWidth(),
                             minLines = 3,
                             shape = RoundedCornerShape(10.dp)

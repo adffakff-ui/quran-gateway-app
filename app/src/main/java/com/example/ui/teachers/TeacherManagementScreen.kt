@@ -544,7 +544,7 @@ fun TeacherManagementScreen(
                             value = newName,
                             onValueChange = { newName = it },
                             label = { Text("اسم المعلم كاملاً") },
-                            placeholder = { Text("مثال: الشيخ عبد الرحمن بن راشد") },
+                            placeholder = { Text("أدخل اسم المعلم") },
                             modifier = Modifier.fillMaxWidth(),
                             singleLine = true,
                             shape = RoundedCornerShape(10.dp)
@@ -572,7 +572,7 @@ fun TeacherManagementScreen(
                             value = newQualification,
                             onValueChange = { newQualification = it },
                             label = { Text("المؤهل القرآني / العلمي") },
-                            placeholder = { Text("مثال: إجازة برواية حفص وشعبة / بكالوريوس شريعة") },
+                            placeholder = { Text("أدخل المؤهل القرآني أو العلمي") },
                             modifier = Modifier.fillMaxWidth(),
                             singleLine = true,
                             shape = RoundedCornerShape(10.dp)

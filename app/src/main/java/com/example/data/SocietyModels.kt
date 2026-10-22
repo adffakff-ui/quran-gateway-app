@@ -35,27 +35,165 @@ data class CertificateTemplate(
     val supervisorSignature: String = "أ. عبد الرحمن السعيد"
 )
 
+/**
+ * نموذج الأوقاف والكفالات والتبرعات الخاصة بحلقات القرآن الكريم
+ */
+data class WaqfContribution(
+    val id: String,
+    val donorName: String,
+    val donorPhone: String,
+    val amount: Double,
+    val type: String, // "كفالة حلقة قرآنية", "كفالة طالب حافظ", "صدقة جارية / وقف مصاحف", "دعم عام للجمعية"
+    val targetRingName: String,
+    val date: String,
+    val receiptNumber: String,
+    val notes: String = ""
+)
+
+/**
+ * سجل الإنجاز والتسميع اليومي السريع للطالب
+ */
+data class DailyHifzRecord(
+    val id: String,
+    val studentName: String,
+    val ringName: String,
+    val surahName: String,
+    val ayahFrom: Int,
+    val ayahTo: Int,
+    val tajweedRating: Int, // 1 to 5 stars
+    val date: String,
+    val notes: String = "",
+    val parentNotifiedViaWhatsApp: Boolean = false
+)
+
+
 object SocietyRepository {
-    var tenants by mutableStateOf<List<Tenant>>(emptyList())
-    var allTeachers by mutableStateOf<List<Teacher>>(emptyList())
-    var allRings by mutableStateOf<List<QuranRing>>(emptyList())
-    var allStudents by mutableStateOf<List<CircleStudent>>(emptyList())
-    var allUsers by mutableStateOf<List<UserProfile>>(emptyList())
+    val defaultRealTenant = Tenant("t_official_main", "الجمعية الخيرية", "الجمعية المركزية", "المركز الرئيسي", "QCA-MAIN", 12, 180, 15, 96, 2)
+    val defaultRing = QuranRing("ring_placeholder", "حلقة جديدة", "لم يُعين", "عصراً", 0, 25, "جزء عمّ", 100)
+    val defaultStudent = CircleStudent("std_placeholder", "طالب جديد", "ولي الأمر", "0500000000")
+    val masterOwner = UserProfile("owner_master", "مالك التطبيق", "Owner", UserRole.OWNER, "775484201", "adffakff@gmail.com")
+    val defaultSupervisor = UserProfile("sup_01", "المشرف العام", "المشرف العام", UserRole.SUPERVISOR, "0551234567", "supervisor@maknoon.org.sa")
+
+    var tenants by mutableStateOf<List<Tenant>>(listOf(defaultRealTenant))
+    var allTeachers by mutableStateOf<List<Teacher>>(
+        listOf(
+            Teacher(
+                id = "tch_01",
+                name = "الشيخ عبد الله القدسي",
+                phone = "771234567",
+                email = "qudsi@maknoon.org.sa",
+                qualification = "بكالوريوس قراءات ودراسات إسلامية",
+                experienceYears = 8,
+                isAvailable = true,
+                status = TeacherStatus.ACTIVE,
+                assignedRings = listOf("حلقة الإمام عاصم"),
+                nationalId = "1045678901",
+                hireDate = "01/01/2022",
+                certificates = listOf("إجازة بقراءة عاصم", "شهادة التجويد المتقدم"),
+                leaveRequests = emptyList(),
+                auditLogs = emptyList()
+            ),
+            Teacher(
+                id = "tch_02",
+                name = "الشيخ محمد بن سالم الزبير",
+                phone = "738766810",
+                email = "salem@maknoon.org.sa",
+                qualification = "ماجستير التفسير وعلوم القرآن",
+                experienceYears = 12,
+                isAvailable = true,
+                status = TeacherStatus.ACTIVE,
+                assignedRings = listOf("حلقة الإمام نافع"),
+                nationalId = "1056789012",
+                hireDate = "15/03/2021",
+                certificates = listOf("إجازة في القراءات السبع"),
+                leaveRequests = emptyList(),
+                auditLogs = emptyList()
+            )
+        )
+    )
+    var allRings by mutableStateOf<List<QuranRing>>(
+        listOf(
+            QuranRing(
+                id = "ring_01",
+                name = "حلقة الإمام عاصم",
+                teacherName = "الشيخ عبد الله القدسي",
+                timeSlot = "عصراً (4:00 - 5:30)",
+                studentCount = 18,
+                maxCapacity = 25,
+                currentJuz = "الجزء الخامس عشر",
+                attendancePercent = 94,
+                level = "متقدم",
+                location = "جامع الراجحي - قاعة الفاروق (حضوري)",
+                description = "حلقة مخصصة لحفظ وتجويد القرآن بقراءة عاصم"
+            ),
+            QuranRing(
+                id = "ring_02",
+                name = "حلقة الإمام نافع",
+                teacherName = "الشيخ محمد بن سالم الزبير",
+                timeSlot = "مغرباً (6:30 - 8:00)",
+                studentCount = 20,
+                maxCapacity = 25,
+                currentJuz = "الجزء الثلاثون (عم)",
+                attendancePercent = 96,
+                level = "متوسط",
+                location = "جامع البركة - رواق النور",
+                description = "حلقة الإتقان ومخارج الحروف"
+            )
+        )
+    )
+    var allStudents by mutableStateOf<List<CircleStudent>>(
+        listOf(
+            CircleStudent("std_1", "عبد الله أحمد اليماني", "أحمد اليماني", "775484201", AttendanceStatus.PRESENT, "حفظ ممتاز (سورة البقرة)", 1),
+            CircleStudent("std_2", "عمر خالد القدسي", "خالد القدسي", "738766810", AttendanceStatus.PRESENT, "تجويد متقن (سورة الكهف)", 2),
+            CircleStudent("std_3", "محمد بن سالم", "سالم الزبير", "0500112233", AttendanceStatus.PRESENT, "إتقان الأحكام (سورة يس)", 3)
+        )
+    )
+    var allUsers by mutableStateOf<List<UserProfile>>(
+        listOf(
+            defaultSupervisor,
+            UserProfile("sup_02", "أ. محمود صالح الأهدل", "مشرف الشؤون التعليمية", UserRole.SUPERVISOR, "770001122", "m.ahdal@maknoon.org.sa"),
+            masterOwner
+        )
+    )
     
     var isProductionMode by mutableStateOf(true)
     var isBiometricLoginEnabled by mutableStateOf(true)
     var systemMaintenanceMode by mutableStateOf(false)
     var globalRegistrationActive by mutableStateOf(true)
 
-    val defaultRealTenant = Tenant("t_official_main", "الجمعية الخيرية", "الجمعية المركزية", "المركز الرئيسي", "QCA-MAIN", 0, 0, 0, 100, 0)
-    val defaultRing = QuranRing("ring_placeholder", "حلقة جديدة", "لم يُعين", "عصراً", 0, 25, "جزء عمّ", 100)
-    val defaultStudent = CircleStudent("std_placeholder", "طالب جديد", "ولي الأمر", "0500000000")
-    val masterOwner = UserProfile("owner_master", "مالك التطبيق", "Owner", UserRole.OWNER, "775484201", "adffakff@gmail.com")
-    val defaultSupervisor = UserProfile("sup_01", "المشرف العام", "المشرف العام", UserRole.SUPERVISOR, "0551234567", "supervisor@maknoon.org.sa")
+    // الأوقاف والتبرعات وكفالة الحلقات
+    var allWaqfContributions by mutableStateOf<List<WaqfContribution>>(
+        listOf(
+            WaqfContribution("wqf_1", "مؤسسة البركة الوقفية", "738766810", 6500.0, "كفالة حلقة قرآنية كاملة", "حلقة الإمام نافع", "2026/10/18", "REC-2026-001", "كفالة سنوية مستمرة"),
+            WaqfContribution("wqf_2", "فاعل خير - تعز", "775484201", 3200.0, "كفالة طالب حافظ متميز", "حلقة الإمام عاصم", "2026/10/20", "REC-2026-002", "سداد مكافأة شهرية"),
+            WaqfContribution("wqf_3", "فاعل خير", "0551234567", 1500.0, "صدقة جارية ومصاحف", "جميع الحلقات", "2026/10/21", "REC-2026-003", "توزيع مصاحف معتمدة")
+        )
+    )
 
-    fun getInitialTeachers(): List<Teacher> = emptyList()
-    fun getInitialRings(): List<QuranRing> = emptyList()
-    fun getInitialCircleStudents(): List<CircleStudent> = emptyList()
+    // المتابعة والتسميع اليومي السريع
+    var allDailyHifzRecords by mutableStateOf<List<DailyHifzRecord>>(
+        listOf(
+            DailyHifzRecord("hifz_1", "عبد الله أحمد اليماني", "حلقة الإمام عاصم", "سورة البقرة", 1, 25, 5, "2026/10/21", "إتقان ممتاز لمخارج الحروف وأحكام النون الساكنة", true),
+            DailyHifzRecord("hifz_2", "عمر خالد القدسي", "حلقة الإمام نافع", "سورة الكهف", 1, 15, 4, "2026/10/21", "تجويد طيب مع تنبيه على مراتب القلقلة", true),
+            DailyHifzRecord("hifz_3", "محمد بن سالم", "حلقة الإمام عاصم", "سورة يس", 1, 30, 5, "2026/10/21", "حفظ متقن ومتميز جداً ما شاء الله", false)
+        )
+    )
+
+    fun addWaqfContribution(contribution: WaqfContribution) {
+        allWaqfContributions = listOf(contribution) + allWaqfContributions
+    }
+
+    fun removeWaqfContribution(id: String) {
+        allWaqfContributions = allWaqfContributions.filterNot { it.id == id }
+    }
+
+    fun addDailyHifzRecord(record: DailyHifzRecord) {
+        allDailyHifzRecords = listOf(record) + allDailyHifzRecords
+    }
+
+    fun getInitialTeachers(): List<Teacher> = allTeachers
+    fun getInitialRings(): List<QuranRing> = allRings
+    fun getInitialCircleStudents(): List<CircleStudent> = allStudents
     fun getInitialWaitlist(): List<WaitlistStudent> = emptyList()
     fun getInitialResources(): List<CircleResource> = emptyList()
     fun getInitialAssignments(): List<CircleAssignment> = emptyList()
@@ -112,11 +250,30 @@ object SocietyRepository {
     fun removeUser(id: String) {
         allUsers = allUsers.filterNot { it.id == id }
     }
-    fun addTenant(tenant: Tenant) {}
-    fun resetToFactoryDefaults() {}
-    fun wipeAllDataPreservingOwner() {}
-    fun resetAllSocietiesDataClean() {}
-    fun isAuthorizedOwner(input: String): Boolean = false
+    fun addTenant(tenant: Tenant) {
+        if (!tenants.any { it.id == tenant.id }) {
+            tenants = tenants + tenant
+        }
+    }
+    fun resetToFactoryDefaults() {
+        allUsers = listOf(defaultSupervisor, masterOwner)
+        allTeachers = emptyList()
+        allStudents = emptyList()
+        allRings = emptyList()
+    }
+    fun wipeAllDataPreservingOwner() {
+        allUsers = listOf(masterOwner)
+        allTeachers = emptyList()
+        allStudents = emptyList()
+        allRings = emptyList()
+    }
+    fun resetAllSocietiesDataClean() {
+        allUsers = listOf(defaultSupervisor, masterOwner)
+        allTeachers = emptyList()
+        allStudents = emptyList()
+        allRings = emptyList()
+    }
+    fun isAuthorizedOwner(input: String): Boolean = OwnerSecurityManager.verifyOwnerSecret(input)
 
     fun findRegisteredUser(query: String, defaultTenant: Tenant): ResolvedUser {
         val q = query.trim().lowercase()

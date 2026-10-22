@@ -446,7 +446,7 @@ fun SupervisorRegistrationScreen(
                                 },
                                 placeholder = {
                                     Text(
-                                        if (selectedRole == UserRole.SUPERVISOR) "مثال: الشيخ عبد الرحمن السعيد" else "مثال: الشيخ محمد عبد الله المعلم"
+                                        if (selectedRole == UserRole.SUPERVISOR) "أدخل اسم المشرف الكامل" else "أدخل اسم المعلم الكامل"
                                     )
                                 },
                                 leadingIcon = {
@@ -492,7 +492,7 @@ fun SupervisorRegistrationScreen(
                                         Text(text = it, color = StatusError, fontSize = 11.sp)
                                     }
                                 },
-                                placeholder = { Text("مثال: supervisor@maknoon.org.sa") },
+                                placeholder = { Text("أدخل البريد الإلكتروني") },
                                 leadingIcon = {
                                     Icon(
                                         imageVector = Icons.Default.Email,
@@ -537,7 +537,7 @@ fun SupervisorRegistrationScreen(
                                         Text(text = it, color = StatusError, fontSize = 11.sp)
                                     }
                                 },
-                                placeholder = { Text("مثال: 775484201 أو 0551234567") },
+                                placeholder = { Text("أدخل رقم الجوال") },
                                 leadingIcon = {
                                     Icon(
                                         imageVector = Icons.Default.Phone,
@@ -709,7 +709,7 @@ fun SupervisorRegistrationScreen(
                                 OutlinedTextField(
                                     value = department,
                                     onValueChange = { department = it },
-                                    placeholder = { Text("مثال: إدارة الشؤون التعليمية والتحفيظ") },
+                                    placeholder = { Text("أدخل القسم الإشرافي") },
                                     leadingIcon = {
                                         Icon(imageVector = Icons.Default.Badge, contentDescription = null, tint = SocietyBluePrimary)
                                     },
@@ -727,7 +727,7 @@ fun SupervisorRegistrationScreen(
                                 OutlinedTextField(
                                     value = teacherQualification,
                                     onValueChange = { teacherQualification = it },
-                                    placeholder = { Text("مثال: إجازة برواية حفص عن عاصم بالسند") },
+                                    placeholder = { Text("أدخل المؤهل القرآني") },
                                     leadingIcon = {
                                         Icon(imageVector = Icons.Default.WorkspacePremium, contentDescription = null, tint = EmeraldDark)
                                     },
@@ -749,7 +749,7 @@ fun SupervisorRegistrationScreen(
                                     OutlinedTextField(
                                         value = experienceYears,
                                         onValueChange = { experienceYears = it },
-                                        placeholder = { Text("مثال: 3") },
+                                        placeholder = { Text("عدد السنوات") },
                                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                                         modifier = Modifier.fillMaxWidth(),
                                         singleLine = true,
@@ -778,7 +778,7 @@ fun SupervisorRegistrationScreen(
                             OutlinedTextField(
                                 value = nationalId,
                                 onValueChange = { nationalId = it },
-                                placeholder = { Text("مثال: 1084920194") },
+                                placeholder = { Text("رقم الهوية") },
                                 leadingIcon = {
                                     Icon(imageVector = Icons.Default.PermIdentity, contentDescription = null, tint = TextMuted)
                                 },

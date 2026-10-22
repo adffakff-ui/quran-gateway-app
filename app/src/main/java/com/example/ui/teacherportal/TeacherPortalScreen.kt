@@ -37,13 +37,28 @@ import com.example.ui.theme.*
 @Composable
 fun TeacherPortalScreen(
     currentTenant: Tenant,
-    teacher: Teacher = SocietyRepository.getInitialTeachers().first(),
+    teacher: Teacher = SocietyRepository.getInitialTeachers().firstOrNull() ?: Teacher(
+        id = "tch_01",
+        name = "الشيخ عبد الله القدسي",
+        phone = "771234567",
+        email = "qudsi@maknoon.org.sa",
+        qualification = "بكالوريوس قراءات ودراسات إسلامية",
+        experienceYears = 8,
+        isAvailable = true,
+        status = TeacherStatus.ACTIVE,
+        assignedRings = listOf("حلقة الإمام عاصم"),
+        nationalId = "1045678901",
+        hireDate = "01/01/2022",
+        certificates = listOf("إجازة بقراءة عاصم"),
+        leaveRequests = emptyList(),
+        auditLogs = emptyList()
+    ),
     onOpenAudioRecitation: (CircleStudent) -> Unit,
     onOpenAttendance: () -> Unit,
     onBack: () -> Unit
 ) {
     val rings = remember { SocietyRepository.getInitialRings().take(3) }
-    var selectedRing by remember { mutableStateOf<QuranRing?>(rings.first()) }
+    var selectedRing by remember { mutableStateOf<QuranRing?>(rings.firstOrNull() ?: SocietyRepository.defaultRing) }
     var activeSubTab by remember { mutableStateOf(0) } // 0: مواد الحلقة, 1: تقييمات الطلاب
     var studentsList by remember { mutableStateOf(SocietyRepository.getInitialCircleStudents().take(15)) }
 
@@ -113,6 +128,28 @@ fun TeacherPortalScreen(
                     .padding(14.dp),
                 verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
+                // شارة عزل البيانات وحماية الخصوصية للمهام الممنوحة
+                Surface(
+                    shape = RoundedCornerShape(10.dp),
+                    color = Color(0xFFEFF6FF),
+                    border = BorderStroke(1.dp, Color(0xFFBFDBFE)),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(Icons.Default.Security, contentDescription = null, tint = SocietyBluePrimary, modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = "صلاحية مخصصة: معلم حلقات • تم عزل السجلات المالية وإدارة الحلقات الأخرى لحماية الخصوصية 🛡️",
+                            fontSize = 10.5.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF1E40AF)
+                        )
+                    }
+                }
+
                 if (snackbarMessage != null) {
                     Card(
                         colors = CardDefaults.cardColors(containerColor = SocietyBlueLight),
@@ -541,7 +578,7 @@ fun TeacherPortalScreen(
                             value = reasonTxt,
                             onValueChange = { reasonTxt = it },
                             label = { Text("السبب أو العذر") },
-                            placeholder = { Text("مثال: ظرف عائلي طارئ / ارتباط رسمي") },
+                            placeholder = { Text("أدخل سبب الاعتذار") },
                             modifier = Modifier.fillMaxWidth(),
                             minLines = 2
                         )

@@ -600,7 +600,7 @@ fun SettingsScreen(
                             value = editName,
                             onValueChange = { editName = it },
                             label = { Text("اسم الجمعية الرسمي الكامل") },
-                            placeholder = { Text("مثال: جمعية مكنون لتحفيظ القرآن الكريم") },
+                            placeholder = { Text("أدخل اسم الجمعية") },
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .testTag("settings_edit_name"),
@@ -616,7 +616,7 @@ fun SettingsScreen(
                             value = editShortName,
                             onValueChange = { editShortName = it },
                             label = { Text("الاسم المختصر للجمعية") },
-                            placeholder = { Text("مثال: جمعية مكنون") },
+                            placeholder = { Text("أدخل الاسم المختصر") },
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .testTag("settings_edit_shortname"),

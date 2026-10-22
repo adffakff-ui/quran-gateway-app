@@ -2,12 +2,15 @@ package com.example.ui.owner
 
 import android.content.Intent
 import android.net.Uri
+import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.*
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.lazy.LazyColumn
@@ -286,7 +289,9 @@ fun OwnerControlPanelScreen(
                 Pair("إدارة البيانات والنسخ", Icons.Outlined.SettingsBackupRestore),
                 Pair("بوابات God Mode", Icons.Outlined.Launch),
                 Pair("درع الأمان (${OwnerSecurityManager.securityIncidents.size})", Icons.Default.Security),
-                Pair("مؤشر التسجيلات", Icons.Default.BarChart)
+                Pair("مؤشر التسجيلات", Icons.Default.BarChart),
+                Pair("بوابة تسجيل المستخدمين", Icons.Default.PersonAdd),
+                Pair("بوابة المستخدمين Zero-Trust", Icons.Default.Fingerprint)
             )
 
             // شريط هيدر المالك فائق الصغر والأناقة (Compact Owner Strip)
@@ -2017,6 +2022,225 @@ fun OwnerControlPanelScreen(
                             }
                         )
                         Spacer(modifier = Modifier.height(32.dp))
+                    }
+                }
+                7 -> {
+                    // ==========================================
+                    // تبويب 7: بوابة تسجيل وتوثيق المستخدمين الجدد
+                    // ==========================================
+                    var selectedRegRole by remember { mutableStateOf(UserRole.GUARDIAN) }
+                    var regName by remember { mutableStateOf("") }
+                    var regId by remember { mutableStateOf("") }
+                    var regPhone by remember { mutableStateOf("") }
+                    var regSupervisorDept by remember { mutableStateOf("") }
+                    var regSuccess by remember { mutableStateOf(false) }
+
+                    LazyColumn(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        item {
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                shape = RoundedCornerShape(16.dp),
+                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                                border = BorderStroke(1.dp, GoldenAmber)
+                            ) {
+                                Column(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .padding(20.dp),
+                                    verticalArrangement = Arrangement.spacedBy(12.dp)
+                                ) {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Icon(
+                                            imageVector = Icons.Default.PersonAdd,
+                                            contentDescription = null,
+                                            tint = GoldenAmber,
+                                            modifier = Modifier.size(28.dp)
+                                        )
+                                        Spacer(modifier = Modifier.width(10.dp))
+                                        Column {
+                                            Text(
+                                                text = "بوابة تسجيل وتوثيق المستخدمين الجدد",
+                                                fontWeight = FontWeight.Bold,
+                                                fontSize = 16.sp,
+                                                color = Color.White
+                                            )
+                                            Text(
+                                                text = "تسجيل وإضافة مشرفين، معلمين، وأولياء أمور جدد وتفعيل الصلاحيات",
+                                                fontSize = 11.sp,
+                                                color = Color(0xFF94A3B8)
+                                            )
+                                        }
+                                    }
+
+                                    HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f))
+
+                                    if (!regSuccess) {
+                                        Text(
+                                            text = "اختر نوع وحساب المستخدم الجديد في ${currentTenant.name}:",
+                                            fontSize = 12.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = Color.White
+                                        )
+
+                                        Row(
+                                            modifier = Modifier.fillMaxWidth(),
+                                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                                        ) {
+                                            FilterChip(
+                                                selected = selectedRegRole == UserRole.GUARDIAN,
+                                                onClick = { selectedRegRole = UserRole.GUARDIAN },
+                                                label = { Text("ولي أمر", fontSize = 11.sp, fontWeight = FontWeight.Bold) },
+                                                leadingIcon = { Icon(Icons.Default.FamilyRestroom, contentDescription = null, modifier = Modifier.size(14.dp)) },
+                                                modifier = Modifier.weight(1f)
+                                            )
+                                            FilterChip(
+                                                selected = selectedRegRole == UserRole.TEACHER,
+                                                onClick = { selectedRegRole = UserRole.TEACHER },
+                                                label = { Text("معلم", fontSize = 11.sp, fontWeight = FontWeight.Bold) },
+                                                leadingIcon = { Icon(Icons.Default.School, contentDescription = null, modifier = Modifier.size(14.dp)) },
+                                                modifier = Modifier.weight(1f)
+                                            )
+                                            FilterChip(
+                                                selected = selectedRegRole == UserRole.SUPERVISOR,
+                                                onClick = { selectedRegRole = UserRole.SUPERVISOR },
+                                                label = { Text("مشرف", fontSize = 11.sp, fontWeight = FontWeight.Bold) },
+                                                leadingIcon = { Icon(Icons.Default.AdminPanelSettings, contentDescription = null, modifier = Modifier.size(14.dp)) },
+                                                modifier = Modifier.weight(1f)
+                                            )
+                                        }
+
+                                        OutlinedTextField(
+                                            value = regName,
+                                            onValueChange = { regName = it },
+                                            label = { Text("الاسم الثلاثي") },
+                                            placeholder = { Text("أدخل الاسم الكامل") },
+                                            modifier = Modifier.fillMaxWidth(),
+                                            singleLine = true,
+                                            shape = RoundedCornerShape(12.dp)
+                                        )
+
+                                        OutlinedTextField(
+                                            value = regId,
+                                            onValueChange = { regId = it },
+                                            label = { Text("رقم الهوية الوطنية / الإقامة") },
+                                            placeholder = { Text("أدخل رقم الهوية") },
+                                            modifier = Modifier.fillMaxWidth(),
+                                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                            singleLine = true,
+                                            shape = RoundedCornerShape(12.dp)
+                                        )
+
+                                        OutlinedTextField(
+                                            value = regPhone,
+                                            onValueChange = { regPhone = it },
+                                            label = { Text("رقم الجوال (05xxxxxxxx)") },
+                                            placeholder = { Text("أدخل رقم الجوال") },
+                                            modifier = Modifier.fillMaxWidth(),
+                                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                                            singleLine = true,
+                                            shape = RoundedCornerShape(12.dp)
+                                        )
+
+                                        if (selectedRegRole == UserRole.SUPERVISOR) {
+                                            OutlinedTextField(
+                                                value = regSupervisorDept,
+                                                onValueChange = { regSupervisorDept = it },
+                                                label = { Text("القسم الإشرافي / الاعتماد") },
+                                                placeholder = { Text("أدخل القسم الإشرافي") },
+                                                modifier = Modifier.fillMaxWidth(),
+                                                singleLine = true,
+                                                shape = RoundedCornerShape(12.dp)
+                                            )
+                                        }
+
+                                        Spacer(modifier = Modifier.height(8.dp))
+
+                                        Button(
+                                            onClick = {
+                                                if (regName.isBlank() || regPhone.isBlank()) {
+                                                    Toast.makeText(context, "يرجى إدخال الاسم ورقم الجوال على الأقل", Toast.LENGTH_SHORT).show()
+                                                    return@Button
+                                                }
+                                                val newUser = UserProfile(
+                                                    id = "user_" + System.currentTimeMillis(),
+                                                    name = regName,
+                                                    title = regSupervisorDept.ifBlank { selectedRegRole.label },
+                                                    role = selectedRegRole,
+                                                    phone = regPhone,
+                                                    email = "$regPhone@society.org"
+                                                )
+                                                SocietyRepository.allUsers = listOf(newUser) + SocietyRepository.allUsers
+                                                OwnerSecurityManager.logUserAccess(
+                                                    userNameOrRole = regName,
+                                                    role = selectedRegRole,
+                                                    tenantName = currentTenant.name,
+                                                    context = context,
+                                                    accessType = "تسجيل مستخدم جديد عبر بوابة المالك المركزية"
+                                                )
+                                                regSuccess = true
+                                                Toast.makeText(context, "تم تسجيل وتوثيق الحساب بنجاح!", Toast.LENGTH_LONG).show()
+                                            },
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .height(50.dp),
+                                            shape = RoundedCornerShape(12.dp),
+                                            colors = ButtonDefaults.buttonColors(containerColor = GoldenAmber)
+                                        ) {
+                                            Icon(Icons.Default.Check, contentDescription = null, tint = Color.Black)
+                                            Spacer(modifier = Modifier.width(8.dp))
+                                            Text("إتمام وتوثيق تسجيل المستخدم الجديد", fontWeight = FontWeight.Bold, color = Color.Black)
+                                        }
+                                    } else {
+                                        Column(
+                                            horizontalAlignment = Alignment.CenterHorizontally,
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .padding(vertical = 24.dp)
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Default.CheckCircle,
+                                                contentDescription = null,
+                                                tint = StatusSuccess,
+                                                modifier = Modifier.size(56.dp)
+                                            )
+                                            Spacer(modifier = Modifier.height(12.dp))
+                                            Text(
+                                                text = "تم تسجيل وتوثيق الحساب بنجاح في النظام!",
+                                                fontWeight = FontWeight.Bold,
+                                                fontSize = 16.sp,
+                                                color = Color.White
+                                            )
+                                            Spacer(modifier = Modifier.height(6.dp))
+                                            Text(
+                                                text = "المستخدم جاهز الآن لتسجيل الدخول بالبصمة أو رقم الجوال.",
+                                                fontSize = 12.sp,
+                                                color = Color(0xFF94A3B8),
+                                                textAlign = TextAlign.Center
+                                            )
+                                            Spacer(modifier = Modifier.height(20.dp))
+                                            OutlinedButton(
+                                                onClick = {
+                                                    regName = ""
+                                                    regId = ""
+                                                    regPhone = ""
+                                                    regSupervisorDept = ""
+                                                    regSuccess = false
+                                                },
+                                                shape = RoundedCornerShape(12.dp),
+                                                border = BorderStroke(1.dp, GoldenAmber)
+                                            ) {
+                                                Text("تسجيل مستخدم آخر", color = GoldenAmber, fontWeight = FontWeight.Bold)
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }

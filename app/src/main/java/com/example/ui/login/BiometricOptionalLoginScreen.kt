@@ -22,16 +22,25 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.data.SocietyRepository
+import com.example.data.UserRole
 import com.example.ui.security.BiometricHelper
 
 @Composable
 fun BiometricOptionalLoginScreen(
+    userRole: UserRole = UserRole.SUPERVISOR,
     onSuccess: () -> Unit,
     onError: (String) -> Unit
 ) {
     val context = LocalContext.current
     var errorMessage by remember { mutableStateOf<String?>(null) }
     var isPromptActive by remember { mutableStateOf(false) }
+
+    val roleLabel = when (userRole) {
+        UserRole.SUPERVISOR -> "المشرف العام"
+        UserRole.TEACHER -> "معلم الحلقات"
+        UserRole.GUARDIAN -> "ولي الأمر"
+        UserRole.OWNER -> "مالك النظام"
+    }
 
     fun triggerBiometric() {
         if (!SocietyRepository.isBiometricLoginEnabled) {
@@ -49,8 +58,8 @@ fun BiometricOptionalLoginScreen(
         isPromptActive = true
         BiometricHelper.showBiometricPrompt(
             context = context,
-            title = "المصادقة الحيوية الآمنة",
-            subtitle = "مسح بصمة الإصبع للتحقق من هوية المشرف",
+            title = "المصادقة الحيوية الآمنة ($roleLabel)",
+            subtitle = "مسح بصمة الإصبع للتحقق من هوية $roleLabel والدخول المباشر إلى البوابة",
             negativeButtonText = "استخدام كلمة المرور",
             onSuccess = {
                 isPromptActive = false
@@ -121,7 +130,7 @@ fun BiometricOptionalLoginScreen(
                     Spacer(modifier = Modifier.height(8.dp))
 
                     Text(
-                        text = "يرجى مسح بصمة الإصبع أو استخدام قفل الشاشة المعتمد للدخول السريع والآمن إلى النظام.",
+                        text = "يرجى مسح بصمة الإصبع أو قفل الجهاز للتحقق من هوية ($roleLabel) والدخول الآمن إلى بوابة الجمعية.",
                         fontSize = 13.sp,
                         color = Color(0xFF64748B),
                         textAlign = TextAlign.Center,

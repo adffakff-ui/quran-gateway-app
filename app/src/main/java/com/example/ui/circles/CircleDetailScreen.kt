@@ -903,7 +903,7 @@ fun CircleDetailScreen(
                             value = editReason,
                             onValueChange = { editReason = it },
                             label = { Text("سبب تعديل السعة (يسجل في سجل التدقيق)") },
-                            placeholder = { Text("مثال: إعادة تنظيم القاعات / إضافة معيد مساند") },
+                            placeholder = { Text("أدخل سبب التعديل") },
                             modifier = Modifier.fillMaxWidth(),
                             singleLine = true,
                             shape = RoundedCornerShape(10.dp)
@@ -1180,7 +1180,7 @@ fun CircleDetailScreen(
                             value = fileTitle,
                             onValueChange = { fileTitle = it },
                             label = { Text("عنوان الملف أو المورد") },
-                            placeholder = { Text("مثال: منظومة الجزرية في التجويد") },
+                            placeholder = { Text("أدخل عنوان المورد") },
                             modifier = Modifier.fillMaxWidth(),
                             singleLine = true
                         )

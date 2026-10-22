@@ -122,6 +122,28 @@ fun ParentPortalScreen(
                     .padding(14.dp),
                 verticalArrangement = Arrangement.spacedBy(14.dp)
             ) {
+                // شارة عزل البيانات وحماية الخصوصية لولي الأمر
+                Surface(
+                    shape = RoundedCornerShape(10.dp),
+                    color = Color(0xFFF5F3FF),
+                    border = BorderStroke(1.dp, Color(0xFFDDD6FE)),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 8.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(Icons.Default.Security, contentDescription = null, tint = Color(0xFF7C3AED), modifier = Modifier.size(16.dp))
+                        Spacer(modifier = Modifier.width(6.dp))
+                        Text(
+                            text = "صلاحية مخصصة: ولي أمر • بيانات باقي الطلاب وسجلات الجمعية معزولة تماماً لحماية الخصوصية 🛡️",
+                            fontSize = 10.5.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color(0xFF5B21B6)
+                        )
+                    }
+                }
+
                 if (snackbarMessage != null) {
                     Card(
                         colors = CardDefaults.cardColors(containerColor = SocietyBlueLight),
@@ -445,7 +467,7 @@ fun ParentPortalScreen(
                         OutlinedTextField(
                             value = selectedQiraa,
                             onValueChange = { selectedQiraa = it },
-                            label = { Text("القراءة (مثال: حفص عن عاصم / ورش عن نافع)") },
+                            label = { Text("القراءة والرواية") },
                             modifier = Modifier.fillMaxWidth(),
                             singleLine = true
                         )
@@ -509,7 +531,7 @@ fun ParentPortalScreen(
                             value = parentNote,
                             onValueChange = { parentNote = it },
                             label = { Text("ملاحظة نصية للمعلم (اختياري)") },
-                            placeholder = { Text("مثال: تم التركيز على ترقيق الراءات") },
+                            placeholder = { Text("أدخل الملاحظة") },
                             modifier = Modifier.fillMaxWidth(),
                             minLines = 2
                         )

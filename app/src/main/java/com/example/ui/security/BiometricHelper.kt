@@ -7,6 +7,7 @@ import androidx.biometric.BiometricPrompt
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.FragmentActivity
 import com.example.data.OwnerSecurityManager
+import com.example.data.UserRole
 
 /**
  * Biometric authentication helper utilizing androidx.biometric.
@@ -124,6 +125,84 @@ object BiometricHelper {
         } catch (e: Exception) {
             onError(e.localizedMessage ?: "خطأ في تشغيل مستشعر البصمة")
         }
+    }
+
+    /**
+     * المصادقة الحيوية المخصصة حسب الرتبة (مشرف عام / معلم حلقات / ولي أمر / مالك)
+     * ترفع مستوى الأمان وتوجه المستخدم مباشرة لبوابته المعتمدة.
+     */
+    fun showRoleBiometricPrompt(
+        context: Context,
+        role: UserRole,
+        tenantName: String,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        val (title, subtitle) = when (role) {
+            UserRole.SUPERVISOR -> Pair("مصادقة المشرف العام بالبصمة", "مسح بصمة الإصبع للوصول المباشر إلى لوحة تحكم المشرف وإدارة الجمعية")
+            UserRole.TEACHER -> Pair("مصادقة معلم الحلقات بالبصمة", "مسح بصمة الإصبع للوصول إلى بوابة المعلم وحلقات التسميع")
+            UserRole.GUARDIAN -> Pair("مصادقة ولي الأمر بالبصمة", "مسح بصمة الإصبع لمتابعة إنجازات وتسميع الأبناء القرآني")
+            UserRole.OWNER -> Pair("مصادقة مالك النظام بالبصمة", "الوصول المشدد والآمن لمالك المنظومة")
+        }
+
+        showBiometricPrompt(
+            context = context,
+            title = title,
+            subtitle = subtitle,
+            negativeButtonText = "إلغاء",
+            onSuccess = {
+                OwnerSecurityManager.logUserAccess(
+                    userNameOrRole = "الدخول السريع بالبصمة: ${role.label}",
+                    role = role,
+                    tenantName = tenantName,
+                    accessType = "مصادقة بيومترية ناجحة ($role)"
+                )
+                onSuccess()
+            },
+            onError = onError
+        )
+    }
+
+    /**
+     * المصادقة البيومترية الصارمة للمستخدم المسجل حصرياً (Zero-Trust Biometric Gate)
+     * تمنع أي عملية لمستخدم مجهول الهوية ليس له تسجيل مسبق في النظام.
+     */
+    fun showStrictBiometricForRegisteredUser(
+        context: Context,
+        user: com.example.data.RegisteredUserEntry,
+        onSuccess: () -> Unit,
+        onError: (String) -> Unit
+    ) {
+        val isVerified = com.example.data.ZeroTrustSecuritySystem.isUserRegistered(user.phone)
+        if (!isVerified) {
+            val blocked = com.example.data.ZeroTrustSecuritySystem.blockAndSanitizeAnonymousAttempt(
+                context = context,
+                attemptedIdentifier = user.phone,
+                operationName = "محاولة مصادقة بيومترية لمستخدم غير مسجل"
+            )
+            onError(blocked.reason)
+            return
+        }
+
+        val title = "المصادقة البيومترية للمستخدم المسجل"
+        val subtitle = "المستخدم: ${user.name} (${user.role.label}) • هاتف: ${user.phone}"
+
+        showBiometricPrompt(
+            context = context,
+            title = title,
+            subtitle = subtitle,
+            negativeButtonText = "إلغاء",
+            onSuccess = {
+                OwnerSecurityManager.logUserAccess(
+                    userNameOrRole = user.name,
+                    role = user.role,
+                    tenantName = user.societyName,
+                    accessType = "مصادقة بيومترية معتمدة وموثقة (${user.role.label})"
+                )
+                onSuccess()
+            },
+            onError = onError
+        )
     }
 
     /**
