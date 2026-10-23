@@ -14,6 +14,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.*
+import androidx.compose.material.icons.automirrored.outlined.*
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
@@ -152,11 +154,11 @@ fun SupervisorDashboardScreen(
                         // عناصر القائمة الجانبية (يتم إخفاء أقسام المالك تماماً عن غيره)
                         val navItems = buildList {
                             add(Triple("dashboard", "لوحة التحكم (مُلخّص)", Icons.Outlined.Dashboard))
-                            add(Triple("rings", "الحلقات", Icons.Outlined.MenuBook))
+                            add(Triple("rings", "الحلقات", Icons.AutoMirrored.Outlined.MenuBook))
                             add(Triple("teachers", "المعلمون", Icons.Outlined.School))
                             add(Triple("students", "الطلاب", Icons.Outlined.People))
                             add(Triple("attendance", "الحضور", Icons.Outlined.CheckCircle))
-                            add(Triple("hifz_planner", "مخطط الحفظ الذكي", Icons.Outlined.EventNote))
+                            add(Triple("hifz_planner", "مخطط الحفظ الذكي", Icons.AutoMirrored.Outlined.EventNote))
                             add(Triple("challenges", "التحديات والمسابقات القرآنية", Icons.Outlined.WorkspacePremium))
                             add(Triple("profile", "معلومات الحساب والصلاحيات", Icons.Outlined.PersonPin))
                             if (userRole == UserRole.OWNER) {
@@ -255,7 +257,7 @@ fun SupervisorDashboardScreen(
                                 .padding(vertical = 8.dp),
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Icon(imageVector = Icons.Default.Logout, contentDescription = null, tint = StatusError, modifier = Modifier.size(18.dp))
+                            Icon(imageVector = Icons.AutoMirrored.Filled.Logout, contentDescription = null, tint = StatusError, modifier = Modifier.size(18.dp))
                             Spacer(modifier = Modifier.width(8.dp))
                             Text(text = "تسجيل الخروج", color = StatusError, fontSize = 13.sp, fontWeight = FontWeight.Bold)
                         }
@@ -418,7 +420,7 @@ fun SupervisorDashboardScreen(
                                     )
                                     DropdownMenuItem(
                                         text = { Text("تسجيل الخروج") },
-                                        leadingIcon = { Icon(Icons.Default.Logout, contentDescription = null, tint = StatusError) },
+                                        leadingIcon = { Icon(Icons.AutoMirrored.Filled.Logout, contentDescription = null, tint = StatusError) },
                                         onClick = {
                                             showSupervisorMenu = false
                                             onLogout()
@@ -505,7 +507,7 @@ fun SupervisorDashboardScreen(
                             value = "${ringsList.size}",
                             subtitle = "حلقة قرآنية",
                             actionText = "عرض الكل",
-                            icon = Icons.Outlined.MenuBook,
+                            icon = Icons.AutoMirrored.Outlined.MenuBook,
                             accentColor = SocietyBluePrimary,
                             onClick = { activeKpiDetail = "rings" }
                         )
@@ -1360,7 +1362,7 @@ fun DailyHifzQuickTrackerSection() {
                         contentAlignment = Alignment.Center
                     ) {
                         Icon(
-                            imageVector = Icons.Default.MenuBook,
+                            imageVector = Icons.AutoMirrored.Filled.MenuBook,
                             contentDescription = null,
                             tint = EmeraldDark,
                             modifier = Modifier.size(20.dp)
@@ -1476,7 +1478,7 @@ fun DailyHifzQuickTrackerSection() {
                                     shape = RoundedCornerShape(8.dp),
                                     contentPadding = PaddingValues(horizontal = 8.dp, vertical = 3.dp)
                                 ) {
-                                    Icon(Icons.Default.Send, contentDescription = null, modifier = Modifier.size(12.dp), tint = EmeraldDark)
+                                    Icon(Icons.AutoMirrored.Filled.Send, contentDescription = null, modifier = Modifier.size(12.dp), tint = EmeraldDark)
                                     Spacer(modifier = Modifier.width(4.dp))
                                     Text("مباركة واتساب", fontSize = 10.sp, color = EmeraldDark)
                                 }

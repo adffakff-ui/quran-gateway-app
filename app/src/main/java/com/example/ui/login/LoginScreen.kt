@@ -21,6 +21,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.automirrored.filled.*
+import androidx.compose.material.icons.automirrored.outlined.*
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -461,7 +462,7 @@ fun LoginScreen(
                                     )
                                     Spacer(modifier = Modifier.width(8.dp))
                                     Icon(
-                                        imageVector = Icons.Default.ArrowForward,
+                                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
                                         contentDescription = null,
                                         tint = Color.White,
                                         modifier = Modifier.size(18.dp)
@@ -1969,7 +1970,7 @@ fun ForgotPasswordSecurityDialog(
                                         onClick = { selectedChannel = "WhatsApp" },
                                         label = { Text("واتساب (بوابة 738766810)", fontSize = 11.sp, fontWeight = FontWeight.Bold) },
                                         leadingIcon = {
-                                            Icon(Icons.Default.Chat, contentDescription = null, modifier = Modifier.size(14.dp), tint = EmeraldDark)
+                                            Icon(Icons.AutoMirrored.Filled.Chat, contentDescription = null, modifier = Modifier.size(14.dp), tint = EmeraldDark)
                                         },
                                         colors = FilterChipDefaults.filterChipColors(selectedContainerColor = EmeraldLight),
                                         modifier = Modifier.weight(1f)
@@ -2062,7 +2063,7 @@ fun ForgotPasswordSecurityDialog(
                             shape = RoundedCornerShape(12.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = EmeraldDark)
                         ) {
-                            Icon(Icons.Default.Send, contentDescription = null, modifier = Modifier.size(18.dp))
+                            Icon(Icons.AutoMirrored.Filled.Send, contentDescription = null, modifier = Modifier.size(18.dp))
                             Spacer(modifier = Modifier.width(8.dp))
                             Text("إرسال كود التحقق OTP الآن", fontWeight = FontWeight.Bold, fontSize = 13.sp)
                         }

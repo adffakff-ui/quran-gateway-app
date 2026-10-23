@@ -12,7 +12,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.*
+import androidx.compose.material.icons.automirrored.outlined.*
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
@@ -398,7 +399,7 @@ fun CircleDetailScreen(
                                             contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
                                             modifier = Modifier.testTag("send_batch_message_btn")
                                         ) {
-                                            Icon(imageVector = Icons.Default.Send, contentDescription = null, modifier = Modifier.size(14.dp))
+                                            Icon(imageVector = Icons.AutoMirrored.Filled.Send, contentDescription = null, modifier = Modifier.size(14.dp))
                                             Spacer(modifier = Modifier.width(4.dp))
                                             Text("إرسال رسالة", fontSize = 11.sp, fontWeight = FontWeight.Bold)
                                         }
@@ -597,7 +598,7 @@ fun CircleDetailScreen(
                                 InfoCardItem("جدول الأوقات:", ring.timeSlot, Icons.Outlined.AccessTime)
                                 InfoCardItem("الموقع والمقر:", ring.location, Icons.Outlined.Place)
                                 InfoCardItem("رابط القاعة / زوم:", ring.zoomLink, Icons.Outlined.VideoCall)
-                                InfoCardItem("المسار والمستوى:", "${ring.level} • ${ring.currentJuz}", Icons.Outlined.MenuBook)
+                                InfoCardItem("المسار والمستوى:", "${ring.level} • ${ring.currentJuz}", Icons.AutoMirrored.Outlined.MenuBook)
 
                                 HorizontalDivider(color = BorderSubtle)
 

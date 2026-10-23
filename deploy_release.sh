@@ -32,10 +32,10 @@ fi
 
 # 3. النشر على GitHub Release (إذا توفرت أداة gh CLI)
 if command -v gh &> /dev/null; then
-  echo "📦 جاري إنشاء Release v1.1.0 على GitHub..."
-  gh release create v1.1.0 ./app-debug.apk --title "v1.1.0 - تطبيق مكنون لحلقات القرآن" --notes "إصدار رسمي يتضمن المصادقة البيومترية للمشرفين والنسخ الاحتياطي والمزامنة السحابية وبوابة المالك المحدثة." || true
+  echo "📦 جاري إنشاء Release v1.2.0 على GitHub..."
+  gh release create v1.2.0 ./app-debug.apk --title "v1.2.0 - تطبيق مكنون لحلقات القرآن" --notes "إصدار رسمي v1.2.0 متوافق مع كافة معالجات ARM64/armeabi-v7a، يتضمن لوحة تحكم المالك والمزامنة السحابية وقفل الأمان البيومتري." || true
 else
-  echo "ℹ️ لرفع الـ APK على GitHub Releases: قم بتشغيل 'gh release create v1.1.0 ./app-debug.apk --title \"v1.1.0\"'"
+  echo "ℹ️ لرفع الـ APK على GitHub Releases: قم بتشغيل 'gh release create v1.2.0 ./app-debug.apk --title \"v1.2.0\"'"
 fi
 
 echo "=========================================="

@@ -12,7 +12,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.*
+import androidx.compose.material.icons.automirrored.outlined.*
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
@@ -93,7 +94,7 @@ fun HifzPlannerScreen(
                     title = {
                         Column {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(imageVector = Icons.Default.EventNote, contentDescription = null, tint = SocietyBluePrimary, modifier = Modifier.size(22.dp))
+                                Icon(imageVector = Icons.AutoMirrored.Filled.EventNote, contentDescription = null, tint = SocietyBluePrimary, modifier = Modifier.size(22.dp))
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text(
                                     text = "مخطط الحفظ والمراجعة الذكي",
@@ -176,7 +177,7 @@ fun HifzPlannerScreen(
                         selected = selectedTab == 0,
                         onClick = { selectedTab = 0 },
                         text = { Text("خطط الحفظ النشطة (${plansList.size})", fontWeight = FontWeight.SemiBold, fontSize = 12.sp) },
-                        icon = { Icon(Icons.Default.ListAlt, contentDescription = null, modifier = Modifier.size(16.dp)) }
+                        icon = { Icon(Icons.AutoMirrored.Filled.ListAlt, contentDescription = null, modifier = Modifier.size(16.dp)) }
                     )
                     Tab(
                         selected = selectedTab == 1,
@@ -280,7 +281,7 @@ fun HifzPlannerScreen(
                                                         .background(SocietyBlueLight),
                                                     contentAlignment = Alignment.Center
                                                 ) {
-                                                    Icon(imageVector = Icons.Default.MenuBook, contentDescription = null, tint = SocietyBluePrimary, modifier = Modifier.size(20.dp))
+                                                    Icon(imageVector = Icons.AutoMirrored.Filled.MenuBook, contentDescription = null, tint = SocietyBluePrimary, modifier = Modifier.size(20.dp))
                                                 }
                                                 Spacer(modifier = Modifier.width(10.dp))
                                                 Column {

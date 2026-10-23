@@ -13,7 +13,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.*
+import androidx.compose.material.icons.automirrored.outlined.*
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
@@ -707,7 +708,7 @@ fun AudioRecitationScreen(
                                     shape = RoundedCornerShape(8.dp),
                                     contentPadding = PaddingValues(vertical = 4.dp)
                                 ) {
-                                    Icon(imageVector = Icons.Default.Comment, contentDescription = null, modifier = Modifier.size(14.dp))
+                                    Icon(imageVector = Icons.AutoMirrored.Filled.Comment, contentDescription = null, modifier = Modifier.size(14.dp))
                                     Spacer(modifier = Modifier.width(4.dp))
                                     Text("تعليق نصي", fontSize = 11.sp)
                                 }
@@ -736,7 +737,7 @@ fun AudioRecitationScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Row(verticalAlignment = Alignment.CenterVertically) {
-                                Icon(imageVector = Icons.Default.SpeakerNotes, contentDescription = null, tint = SocietyBluePrimary)
+                                Icon(imageVector = Icons.AutoMirrored.Filled.SpeakerNotes, contentDescription = null, tint = SocietyBluePrimary)
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text(
                                     text = "معرض ملاحظات وتوجيهات المعلمين",

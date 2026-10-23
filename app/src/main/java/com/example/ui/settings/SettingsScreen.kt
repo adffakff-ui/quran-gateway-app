@@ -15,8 +15,8 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.Chat
+import androidx.compose.material.icons.automirrored.filled.*
+import androidx.compose.material.icons.automirrored.outlined.*
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
@@ -206,7 +206,7 @@ fun SettingsScreen(
                 SocietyRepository.updateTenant(updatedTenant)
                 onTenantUpdated(updatedTenant)
 
-                val nowTime = SimpleDateFormat("hh:mm a", Locale("ar")).format(Date())
+                val nowTime = SimpleDateFormat("hh:mm a", Locale.forLanguageTag("ar")).format(Date())
                 lastSyncedTimestamp = nowTime
                 snackbarMessage = "تم حفظ ومزامنة إعدادات الجمعية بنجاح في Cloud Firestore!"
                 Toast.makeText(context, "تم حفظ الإعدادات سحابياً بنجاح ($nowTime)", Toast.LENGTH_SHORT).show()
@@ -621,7 +621,7 @@ fun SettingsScreen(
                                 .fillMaxWidth()
                                 .testTag("settings_edit_shortname"),
                             leadingIcon = {
-                                Icon(Icons.Default.Label, contentDescription = null, tint = activeColor)
+                                Icon(Icons.AutoMirrored.Filled.Label, contentDescription = null, tint = activeColor)
                             },
                             shape = RoundedCornerShape(12.dp),
                             singleLine = true
@@ -979,7 +979,7 @@ fun SettingsScreen(
                                 NotificationToggleRow(
                                     title = "أصوات واهتزاز التنبيهات",
                                     subtitle = "تشغيل نغمة لطيفة واهتزاز مع كل إشعار رسمي وارد",
-                                    icon = Icons.Default.VolumeUp,
+                                    icon = Icons.AutoMirrored.Filled.VolumeUp,
                                     checked = soundVibrationEnabled,
                                     activeColor = activeColor,
                                     onCheckedChange = { soundVibrationEnabled = it }

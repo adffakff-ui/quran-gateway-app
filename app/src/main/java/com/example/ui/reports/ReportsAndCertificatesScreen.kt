@@ -12,7 +12,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.*
+import androidx.compose.material.icons.automirrored.outlined.*
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
@@ -155,21 +156,38 @@ fun ReportsAndCertificatesScreen(
 
                         FilterChip(
                             selected = true,
-                            onClick = { },
+                            onClick = {
+                                datePeriodFilter = when (datePeriodFilter) {
+                                    "الشهر الحالي (أكتوبر 2026)" -> "الأسبوع الحالي"
+                                    "الأسبوع الحالي" -> "الفصل الدراسي الحالي"
+                                    else -> "الشهر الحالي (أكتوبر 2026)"
+                                }
+                            },
                             label = { Text(datePeriodFilter, fontSize = 11.sp) },
                             leadingIcon = { Icon(Icons.Default.DateRange, contentDescription = null, modifier = Modifier.size(14.dp)) }
                         )
 
                         FilterChip(
                             selected = true,
-                            onClick = { },
+                            onClick = {
+                                val ringNames = listOf("جميع الحلقات") + rings.map { it.name }
+                                val nextIdx = (ringNames.indexOf(selectedRingFilter) + 1) % ringNames.size
+                                selectedRingFilter = ringNames[nextIdx]
+                            },
                             label = { Text(selectedRingFilter, fontSize = 11.sp) },
-                            leadingIcon = { Icon(Icons.Default.MenuBook, contentDescription = null, modifier = Modifier.size(14.dp)) }
+                            leadingIcon = { Icon(Icons.AutoMirrored.Filled.MenuBook, contentDescription = null, modifier = Modifier.size(14.dp)) }
                         )
 
                         FilterChip(
                             selected = true,
-                            onClick = { },
+                            onClick = {
+                                selectedLevelFilter = when (selectedLevelFilter) {
+                                    "جميع المستويات" -> "مستوى المبتدئين"
+                                    "مستوى المبتدئين" -> "مستوى المتوسط"
+                                    "مستوى المتوسط" -> "مستوى الإتقان والخاتمين"
+                                    else -> "جميع المستويات"
+                                }
+                            },
                             label = { Text(selectedLevelFilter, fontSize = 11.sp) }
                         )
                     }

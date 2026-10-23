@@ -9,7 +9,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.*
+import androidx.compose.material.icons.automirrored.outlined.*
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
@@ -205,7 +206,7 @@ fun AccountProfileAndPermissionsScreen(
                                     )
                                 }
                             }
-                            Icon(imageVector = Icons.Default.ArrowForward, contentDescription = null, tint = Color(0xFFFFB300))
+                            Icon(imageVector = Icons.AutoMirrored.Filled.ArrowForward, contentDescription = null, tint = Color(0xFFFFB300))
                         }
                     }
                 }
@@ -444,8 +445,8 @@ fun AccountProfileAndPermissionsScreen(
                             iconTint = MaterialTheme.colorScheme.primary,
                             title = "العنوان",
                             subtitle = "${currentTenant.city} - ${currentTenant.name}",
-                            actionText = null,
-                            onActionClick = {}
+                            actionText = "نسخ",
+                            onActionClick = { snackbarMessage = "تم نسخ عنوان الجمعية: ${currentTenant.city} - ${currentTenant.name}" }
                         )
 
                         // Item 4: Sub Accounts
@@ -500,7 +501,7 @@ fun AccountProfileAndPermissionsScreen(
                             Triple("صلاحية المعلم", Icons.Outlined.School, true),
                             Triple("صلاحية الفرع", Icons.Outlined.Business, false),
                             Triple("صلاحية تطبيقي", Icons.Outlined.PhoneAndroid, true),
-                            Triple("صلاحية واتساب", Icons.Outlined.Chat, true),
+                            Triple("صلاحية واتساب", Icons.AutoMirrored.Outlined.Chat, true),
                             Triple("صلاحية الموزع / المساعد", Icons.Outlined.SupervisorAccount, false)
                         )
 

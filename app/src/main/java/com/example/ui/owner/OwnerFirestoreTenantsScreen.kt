@@ -421,22 +421,18 @@ fun OwnerFirestoreTenantsScreen(
                                 modifier = Modifier.fillMaxWidth(),
                                 horizontalArrangement = Arrangement.spacedBy(6.dp)
                             ) {
-                                AssistChip(
-                                    onClick = {},
-                                    label = { Text("${tenant.ringsCount} حلقة") }
-                                )
-                                AssistChip(
-                                    onClick = {},
-                                    label = { Text("${tenant.studentsCount} طالب") }
-                                )
-                                AssistChip(
-                                    onClick = {},
-                                    label = { Text("${tenant.teachersCount} معلم") }
-                                )
-                                AssistChip(
-                                    onClick = {},
-                                    label = { Text("${tenant.attendanceRate}% حضور") }
-                                )
+                                Surface(shape = RoundedCornerShape(8.dp), color = SlateBackground, border = BorderStroke(0.5.dp, BorderSubtle)) {
+                                    Text("${tenant.ringsCount} حلقة", fontSize = 11.sp, modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp), color = TextDark)
+                                }
+                                Surface(shape = RoundedCornerShape(8.dp), color = SlateBackground, border = BorderStroke(0.5.dp, BorderSubtle)) {
+                                    Text("${tenant.studentsCount} طالب", fontSize = 11.sp, modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp), color = TextDark)
+                                }
+                                Surface(shape = RoundedCornerShape(8.dp), color = SlateBackground, border = BorderStroke(0.5.dp, BorderSubtle)) {
+                                    Text("${tenant.teachersCount} معلم", fontSize = 11.sp, modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp), color = TextDark)
+                                }
+                                Surface(shape = RoundedCornerShape(8.dp), color = SlateBackground, border = BorderStroke(0.5.dp, BorderSubtle)) {
+                                    Text("${tenant.attendanceRate}% حضور", fontSize = 11.sp, modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp), color = TextDark)
+                                }
                             }
 
                             Spacer(modifier = Modifier.height(10.dp))

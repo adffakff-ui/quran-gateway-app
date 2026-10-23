@@ -18,10 +18,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.MenuBook
-import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.automirrored.filled.*
+import androidx.compose.material.icons.automirrored.outlined.*
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -287,9 +286,9 @@ fun OwnerControlPanelScreen(
             val ownerTabs = listOf(
                 Pair("الجمعيات (${allTenants.size})", Icons.Outlined.Apartment),
                 Pair("المعلمون والصلاحيات", Icons.Outlined.AdminPanelSettings),
-                Pair("الحلقات والطلاب", Icons.Outlined.MenuBook),
+                Pair("الحلقات والطلاب", Icons.AutoMirrored.Outlined.MenuBook),
                 Pair("إدارة البيانات والنسخ", Icons.Outlined.SettingsBackupRestore),
-                Pair("بوابات God Mode", Icons.Outlined.Launch),
+                Pair("بوابات God Mode", Icons.AutoMirrored.Outlined.Launch),
                 Pair("درع الأمان (${OwnerSecurityManager.securityIncidents.size})", Icons.Default.Security),
                 Pair("مؤشر التسجيلات", Icons.Default.BarChart),
                 Pair("بوابة تسجيل المستخدمين", Icons.Default.PersonAdd),
@@ -579,18 +578,15 @@ fun OwnerControlPanelScreen(
                                             modifier = Modifier.fillMaxWidth(),
                                             horizontalArrangement = Arrangement.spacedBy(6.dp)
                                         ) {
-                                            AssistChip(
-                                                onClick = {},
-                                                label = { Text("${tenant.ringsCount} حلقة") }
-                                            )
-                                            AssistChip(
-                                                onClick = {},
-                                                label = { Text("${tenant.studentsCount} طالب") }
-                                            )
-                                            AssistChip(
-                                                onClick = {},
-                                                label = { Text("${tenant.teachersCount} معلم") }
-                                            )
+                                            Surface(shape = RoundedCornerShape(8.dp), color = SlateBackground, border = BorderStroke(0.5.dp, BorderSubtle)) {
+                                                Text("${tenant.ringsCount} حلقة", fontSize = 11.sp, modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp), color = TextDark)
+                                            }
+                                            Surface(shape = RoundedCornerShape(8.dp), color = SlateBackground, border = BorderStroke(0.5.dp, BorderSubtle)) {
+                                                Text("${tenant.studentsCount} طالب", fontSize = 11.sp, modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp), color = TextDark)
+                                            }
+                                            Surface(shape = RoundedCornerShape(8.dp), color = SlateBackground, border = BorderStroke(0.5.dp, BorderSubtle)) {
+                                                Text("${tenant.teachersCount} معلم", fontSize = 11.sp, modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp), color = TextDark)
+                                            }
                                         }
 
                                         Spacer(modifier = Modifier.height(8.dp))
@@ -1490,7 +1486,7 @@ fun OwnerControlPanelScreen(
                                         Text(subtitle, fontSize = 11.sp, color = TextMuted)
                                     }
                                     Icon(
-                                        imageVector = Icons.Default.ArrowForward,
+                                        imageVector = Icons.AutoMirrored.Filled.ArrowForward,
                                         contentDescription = null,
                                         tint = SocietyBluePrimary
                                     )
@@ -2537,7 +2533,7 @@ fun OwnerControlPanelScreen(
             var targetJuz by remember { mutableStateOf("جزء عمّ") }
             AlertDialog(
                 onDismissRequest = { showAddRingDialog = false },
-                icon = { Icon(Icons.Default.MenuBook, contentDescription = null, tint = SocietyBluePrimary) },
+                icon = { Icon(Icons.AutoMirrored.Filled.MenuBook, contentDescription = null, tint = SocietyBluePrimary) },
                 title = { Text("إضافة حلقة قرآنية جديدة", fontWeight = FontWeight.Bold) },
                 text = {
                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {

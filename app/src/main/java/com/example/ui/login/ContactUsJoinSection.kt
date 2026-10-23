@@ -17,6 +17,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.*
+import androidx.compose.material.icons.automirrored.outlined.*
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
@@ -323,7 +325,7 @@ fun ContactUsJoinSection(
                 .padding(16.dp)
                 .testTag("support_fab")
         ) {
-            Icon(Icons.Default.Chat, contentDescription = "تواصل عبر واتساب")
+            Icon(Icons.AutoMirrored.Filled.Chat, contentDescription = "تواصل عبر واتساب")
         }
     }
 
@@ -349,7 +351,7 @@ fun ContactUsJoinSection(
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        imageVector = Icons.Default.FactCheck,
+                        imageVector = Icons.AutoMirrored.Filled.FactCheck,
                         contentDescription = "فحص الطلب",
                         tint = EmeraldGreen,
                         modifier = Modifier.size(30.dp)

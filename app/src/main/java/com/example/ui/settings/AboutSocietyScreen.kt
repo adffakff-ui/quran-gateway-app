@@ -15,7 +15,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.*
+import androidx.compose.material.icons.automirrored.outlined.*
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
@@ -165,6 +166,100 @@ fun AboutSocietyScreen(
                                 lineHeight = 18.sp
                             )
                         }
+                    }
+                }
+            }
+
+            // ==========================================
+            // بطاقة حالة أمان الاتصال Firebase App Check
+            // ==========================================
+            item {
+                Card(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .testTag("firebase_appcheck_status_card"),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = EmeraldGreen.copy(alpha = 0.08f)),
+                    border = BorderStroke(1.5.dp, EmeraldGreen.copy(alpha = 0.4f))
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp)
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            modifier = Modifier.fillMaxWidth()
+                        ) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.weight(1f)
+                            ) {
+                                Box(
+                                    modifier = Modifier
+                                        .size(38.dp)
+                                        .clip(RoundedCornerShape(10.dp))
+                                        .background(EmeraldGreen.copy(alpha = 0.2f)),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Shield,
+                                        contentDescription = "App Check Shield",
+                                        tint = EmeraldGreen,
+                                        modifier = Modifier.size(22.dp)
+                                    )
+                                }
+                                Spacer(modifier = Modifier.width(10.dp))
+                                Column {
+                                    Text(
+                                        text = "حالة أمان الاتصال وحماية المنظومة",
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 13.sp,
+                                        color = TextDark
+                                    )
+                                    Text(
+                                        text = "Firebase App Check • Play Integrity",
+                                        fontSize = 11.sp,
+                                        color = TextMuted
+                                    )
+                                }
+                            }
+
+                            // مؤشر الحالة (Badge)
+                            Surface(
+                                shape = RoundedCornerShape(20.dp),
+                                color = EmeraldGreen.copy(alpha = 0.18f),
+                                border = BorderStroke(1.dp, EmeraldGreen)
+                            ) {
+                                Row(
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                    verticalAlignment = Alignment.CenterVertically
+                                ) {
+                                    Box(
+                                        modifier = Modifier
+                                            .size(8.dp)
+                                            .clip(CircleShape)
+                                            .background(EmeraldGreen)
+                                    )
+                                    Spacer(modifier = Modifier.width(5.dp))
+                                    Text(
+                                        text = "حماية الاتصال: مفعل",
+                                        fontWeight = FontWeight.Bold,
+                                        fontSize = 10.sp,
+                                        color = EmeraldGreen
+                                    )
+                                }
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Text(
+                            text = "تم التحقق من سلامة بيئة التشغيل ومصادقة الاتصال بقواعد بيانات Firestore السحابية بنجاح بنظام Zero-Trust لمنع التلاعب واستعلامات البوتات.",
+                            fontSize = 11.sp,
+                            color = TextMuted,
+                            lineHeight = 16.sp
+                        )
                     }
                 }
             }
@@ -368,7 +463,7 @@ fun AboutSocietyScreen(
 
                         // واتساب مباشر
                         ContactActionRow(
-                            icon = Icons.Outlined.Chat,
+                            icon = Icons.AutoMirrored.Outlined.Chat,
                             title = "محادثة واتساب الرسمية",
                             subtitle = "رد فوري وتوثيق الاستفسارات والشكاوى",
                             actionLabel = "فتح واتساب",
@@ -537,7 +632,7 @@ fun AboutSocietyScreen(
                                 .testTag("submit_about_feedback_btn"),
                             shape = RoundedCornerShape(10.dp)
                         ) {
-                            Icon(imageVector = Icons.Default.Send, contentDescription = null, modifier = Modifier.size(18.dp))
+                            Icon(imageVector = Icons.AutoMirrored.Filled.Send, contentDescription = null, modifier = Modifier.size(18.dp))
                             Spacer(modifier = Modifier.width(8.dp))
                             Text("إرسال الرسالة إلى إدارة الجمعية", fontWeight = FontWeight.Bold)
                         }

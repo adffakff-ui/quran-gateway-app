@@ -10,6 +10,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.*
+import androidx.compose.material.icons.automirrored.outlined.*
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.*
 import androidx.compose.material3.*
@@ -216,7 +218,7 @@ fun AppNavigationDrawerSheet(
                         route = AppDestinations.CIRCLE_DETAIL,
                         title = "تفاصيل الحلقة والطلاب",
                         subtitle = "السعة، المقاعد، والمستويات",
-                        icon = Icons.Outlined.MenuBook,
+                        icon = Icons.AutoMirrored.Outlined.MenuBook,
                         badge = "${currentTenant.ringsCount} حلقة"
                     ),
                     NavDrawerItem(
@@ -378,7 +380,7 @@ fun AppNavigationDrawerSheet(
                     elevation = ButtonDefaults.buttonElevation(defaultElevation = 0.dp)
                 ) {
                     Icon(
-                        imageVector = Icons.Default.Logout,
+                        imageVector = Icons.AutoMirrored.Filled.Logout,
                         contentDescription = null,
                         tint = StatusError,
                         modifier = Modifier.size(18.dp)

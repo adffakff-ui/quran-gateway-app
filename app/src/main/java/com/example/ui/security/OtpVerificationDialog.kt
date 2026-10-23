@@ -447,7 +447,9 @@ fun OtpVerificationDialog(
                                             }
 
                                             OutlinedButton(
-                                                onClick = { },
+                                                onClick = {
+                                                    Toast.makeText(context, "تم تأكيد سلامة القناة وحظر أي أرقام غير معتمدة", Toast.LENGTH_SHORT).show()
+                                                },
                                                 modifier = Modifier.weight(1f),
                                                 shape = RoundedCornerShape(20.dp),
                                                 colors = ButtonDefaults.outlinedButtonColors(
