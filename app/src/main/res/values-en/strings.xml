@@ -1,8 +1,0 @@
-<resources>
-    <string name="app_name">Society Portal</string>
-    <string name="welcome_title">Quranic Societies Management System</string>
-    <string name="login_title">Supervisor &amp; Admin Login</string>
-    <string name="email_hint">Email Address</string>
-    <string name="password_hint">Password</string>
-    <string name="login_button">Sign In</string>
-</resources>
